@@ -19,18 +19,13 @@
 
 package org.jodconverter.local.filter;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import com.sun.star.lang.XComponent;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import org.jodconverter.core.office.OfficeContext;
 import org.jodconverter.core.office.OfficeException;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /** Base class of a FilterChain. */
 public abstract class AbstractFilterChain implements FilterChain {
@@ -49,7 +44,7 @@ public abstract class AbstractFilterChain implements FilterChain {
    *
    * @param filters The filters to add to the chain.
    */
-  public AbstractFilterChain(@Nullable final Filter... filters) {
+  public AbstractFilterChain(final Filter... filters) {
     this(false, filters);
   }
 
@@ -60,12 +55,16 @@ public abstract class AbstractFilterChain implements FilterChain {
    *     can be added to the chain), {@code false} otherwise.
    * @param filters The filters to initially add to the chain.
    */
-  public AbstractFilterChain(final boolean readOnly, @Nullable final Filter... filters) {
+  public AbstractFilterChain(final boolean readOnly, final Filter... filters) {
 
     this.readOnly = readOnly;
     this.pos = 0;
-    this.filters =
-        Arrays.stream(Optional.of(filters).orElse(new Filter[0])).collect(Collectors.toList());
+    if (filters != null) {
+      this.filters = new ArrayList<Filter>(filters.length);
+      Collections.addAll(this.filters, filters);
+    } else {
+      this.filters = Collections.emptyList();
+    }
 
     if (readOnly) {
       this.filters = Collections.unmodifiableList(this.filters);
@@ -73,7 +72,7 @@ public abstract class AbstractFilterChain implements FilterChain {
   }
 
   @Override
-  public void addFilter(@NonNull final Filter filter) {
+  public void addFilter(final Filter filter) {
 
     if (readOnly) {
       throw new UnsupportedOperationException();
@@ -82,7 +81,7 @@ public abstract class AbstractFilterChain implements FilterChain {
   }
 
   @Override
-  public void doFilter(@NonNull final OfficeContext context, @NonNull final XComponent document)
+  public void doFilter(final OfficeContext context, final XComponent document)
       throws OfficeException {
 
     // Call the next filter if there is one
@@ -101,9 +100,7 @@ public abstract class AbstractFilterChain implements FilterChain {
    * @throws OfficeException If an error occurs processing the filter.
    */
   protected void doFilter(
-      @NonNull final Filter filter,
-      @NonNull final OfficeContext context,
-      @NonNull final XComponent document)
+      final Filter filter, final OfficeContext context, final XComponent document)
       throws OfficeException {
 
     try {

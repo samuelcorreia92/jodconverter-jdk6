@@ -20,11 +20,9 @@
 package org.jodconverter.local.filter;
 
 import com.sun.star.lang.XComponent;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jodconverter.core.office.OfficeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.jodconverter.core.office.OfficeContext;
 
 /** This filter does nothing except calling the next filter in the chain. */
 public class NoopFilter implements Filter {
@@ -50,9 +48,9 @@ public class NoopFilter implements Filter {
 
   @Override
   public void doFilter(
-      @NonNull final OfficeContext context,
-      @NonNull final XComponent document,
-      @NonNull final FilterChain chain)
+      final OfficeContext context,
+      final XComponent document,
+      final FilterChain chain)
       throws Exception {
 
     LOGGER.debug("Applying the NoopFilter");

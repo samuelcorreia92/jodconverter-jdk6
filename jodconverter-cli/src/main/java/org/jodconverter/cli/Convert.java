@@ -1,44 +1,8 @@
-/*
- * Copyright 2004 - 2012 Mirko Nasato and contributors
- *           2016 - 2020 Simon Braconnier and contributors
- *
- * This file is part of JODConverter - Java OpenDocument Converter.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.jodconverter.cli;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import org.apache.commons.cli.*;
 import org.jodconverter.core.document.DocumentFormatRegistry;
 import org.jodconverter.core.document.JsonDocumentFormatRegistry;
 import org.jodconverter.core.office.OfficeManager;
@@ -50,6 +14,16 @@ import org.jodconverter.local.office.LocalOfficeManager;
 import org.jodconverter.remote.RemoteConverter;
 import org.jodconverter.remote.office.RemoteOfficeManager;
 import org.jodconverter.remote.ssl.SslConfig;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /** Command line interface executable. */
 @SuppressWarnings("PMD.UseUtilityClass")
@@ -220,7 +194,6 @@ public final class Convert {
     return builder.install().build();
   }
 
-  @Nullable
   private static AbstractApplicationContext getApplicationContextOption(
       final CommandLine commandLine) {
 
@@ -233,26 +206,30 @@ public final class Convert {
     return null;
   }
 
-  @Nullable
   private static FilterChain getFilterChain(final ApplicationContext context) {
-
-    return Optional.ofNullable(context).map(ctx -> ctx.getBean(FilterChain.class)).orElse(null);
+    return Optional.fromNullable(context)
+        .transform(
+            new Function<ApplicationContext, FilterChain>() {
+              public FilterChain apply(ApplicationContext ctx) {
+                return ctx.getBean(FilterChain.class);
+              }
+            })
+        .orNull();
   }
 
-  @Nullable
   private static DocumentFormatRegistry getRegistryOption(final CommandLine commandLine)
       throws IOException {
 
     if (commandLine.hasOption(OPT_REGISTRY.getOpt())) {
       return JsonDocumentFormatRegistry.create(
           FileUtils.readFileToString(
-              new File(commandLine.getOptionValue(OPT_REGISTRY.getOpt())), StandardCharsets.UTF_8));
+              new File(commandLine.getOptionValue(OPT_REGISTRY.getOpt())),
+              Charset.forName("UTF-8")));
     }
 
     return null;
   }
 
-  @Nullable
   private static String getStringOption(final CommandLine commandLine, final String option) {
 
     if (commandLine.hasOption(option)) {
@@ -370,37 +347,37 @@ public final class Convert {
     }
   }
 
-  @Nullable
   private static Map<String, Object> toMap(final String... options) {
 
     if (options.length % 2 != 0) {
       return null;
     }
 
-    return IntStream.range(0, options.length)
-        .filter(i -> i % 2 == 0)
-        .boxed()
-        .collect(
-            Collectors.toMap(
-                i -> options[i],
-                i -> {
-                  final String val = options[i + 1];
-                  if ("true".equalsIgnoreCase(val)) {
-                    return Boolean.TRUE;
-                  }
-                  if ("false".equalsIgnoreCase(val)) {
-                    return Boolean.FALSE;
-                  }
-                  try {
-                    return Integer.parseInt(val);
-                  } catch (NumberFormatException nfe) {
-                    return val;
-                  }
-                }));
+    //   TODO
+    //    return IntStream.range(0, options.length)
+    //        .filter(i -> i % 2 == 0)
+    //        .boxed()
+    //        .collect(
+    //            Collectors.toMap(
+    //                i -> options[i],
+    //                i -> {
+    //                  final String val = options[i + 1];
+    //                  if ("true".equalsIgnoreCase(val)) {
+    //                    return Boolean.TRUE;
+    //                  }
+    //                  if ("false".equalsIgnoreCase(val)) {
+    //                    return Boolean.FALSE;
+    //                  }
+    //                  try {
+    //                    return Integer.parseInt(val);
+    //                  } catch (NumberFormatException nfe) {
+    //                    return val;
+    //                  }
+    //                }));
+    return Collections.emptyMap();
   }
 
-  @Nullable
-  private static Map<String, Object> buildProperties(@Nullable final String... args) {
+  private static Map<String, Object> buildProperties(final String... args) {
 
     if (args == null || args.length == 0) {
       return null;
@@ -411,8 +388,8 @@ public final class Convert {
       return null;
     }
 
-    final Map<String, Object> properties = new HashMap<>();
-    final Map<String, Object> filterDataProperties = new HashMap<>();
+    final Map<String, Object> properties = new HashMap<String, Object>();
+    final Map<String, Object> filterDataProperties = new HashMap<String, Object>();
     for (final Map.Entry<String, Object> entry : argsMap.entrySet()) {
       final String key = entry.getKey();
       if (key.length() > 2 && key.startsWith("FD")) {
@@ -432,7 +409,7 @@ public final class Convert {
       final CommandLine commandLine,
       final AbstractApplicationContext context,
       final OfficeManager officeManager,
-      @Nullable final DocumentFormatRegistry registry) {
+      final DocumentFormatRegistry registry) {
 
     if (commandLine.hasOption(OPT_CONNECTION_URL.getOpt())) {
       final RemoteConverter.Builder builder =
@@ -453,7 +430,8 @@ public final class Convert {
         buildProperties(commandLine.getOptionValues(OPT_LOAD_PROPERTIES.getOpt()));
     if (loadProperties != null) {
       // Ensure the default properties will be applied.
-      final Map<String, Object> props = new HashMap<>(LocalConverter.DEFAULT_LOAD_PROPERTIES);
+      final Map<String, Object> props =
+          new HashMap<String, Object>(LocalConverter.DEFAULT_LOAD_PROPERTIES);
       props.putAll(loadProperties);
       builder.loadProperties(props);
     }

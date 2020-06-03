@@ -68,7 +68,7 @@ public class AllConverterITest {
       localConverter.convert(inputFile).to(outputFile).execute();
 
       // Check that the output file was created with the expected content.
-      final String content = FileUtils.readFileToString(outputFile, StandardCharsets.UTF_8);
+      final String content = FileUtils.readFileToString(outputFile, Charset.forName("UTF-8"));
       assertThat(content).as("Check content: %s", content).contains("Test document");
     } finally {
       wireMockServer.stop();
@@ -93,7 +93,7 @@ public class AllConverterITest {
       remoteConverter.convert(inputFile).to(outputFile).execute();
 
       // Check that the output file was created with the expected content.
-      final String content = FileUtils.readFileToString(outputFile, StandardCharsets.UTF_8);
+      final String content = FileUtils.readFileToString(outputFile, Charset.forName("UTF-8"));
       assertThat(content).as("Check content: %s", content).contains("Test document");
 
       // Verify that a it is actually the remote converter that did the conversion.

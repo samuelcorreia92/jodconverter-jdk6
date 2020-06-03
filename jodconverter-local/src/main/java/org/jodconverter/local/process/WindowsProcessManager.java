@@ -22,9 +22,6 @@ package org.jodconverter.local.process;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 /**
  * {@link org.jodconverter.local.process.ProcessManager} implementation for Windows.
  *
@@ -33,8 +30,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 public class WindowsProcessManager extends AbstractProcessManager {
 
-  private static final Pattern PROCESS_GET_LINE =
-      Pattern.compile("^\\s*(?<CommandLine>.*?)\\s+(?<Pid>\\d+)\\s*$");
+  private static final Pattern PROCESS_GET_LINE = Pattern.compile("^\\s*(.*?)\\s+(\\d+)\\s*$");
 
   /**
    * This class is required in order to create the default WindowsProcessManager only on demand, as
@@ -50,21 +46,18 @@ public class WindowsProcessManager extends AbstractProcessManager {
    *
    * @return The default {@code WindowsProcessManager} instance.
    */
-  @NonNull
   public static WindowsProcessManager getDefault() {
     return DefaultHolder.INSTANCE;
   }
 
-  @NonNull
   @Override
-  protected String[] getRunningProcessesCommand(@NonNull final String process) {
+  protected String[] getRunningProcessesCommand(final String process) {
 
     return new String[] {
       "cmd", "/c", "wmic process where(name like '" + process + "%') get commandline,processid"
     };
   }
 
-  @NonNull
   @Override
   protected Pattern getRunningProcessLinePattern() {
 
@@ -88,11 +81,14 @@ public class WindowsProcessManager extends AbstractProcessManager {
   }
 
   @Override
-  public void kill(@Nullable final Process process, final long pid) throws IOException {
+  public void kill(final Process process, final long pid) throws IOException {
     if (pid > PID_UNKNOWN) {
       execute(new String[] {"taskkill", "/t", "/f", "/pid", String.valueOf(pid)});
     } else {
-      super.kill(process, pid);
+      if (process == null) {
+        throw new NullPointerException("process must not be null");
+      }
+      process.destroy();
     }
   }
 }

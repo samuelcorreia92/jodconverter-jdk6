@@ -19,18 +19,15 @@
 
 package org.jodconverter.core.job;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Optional;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import org.jodconverter.core.office.TemporaryFileMaker;
 import org.jodconverter.core.util.AssertUtils;
 import org.jodconverter.core.util.FileUtils;
 import org.jodconverter.core.util.IOUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /** Source document specifications for from an input stream. */
 public class SourceDocumentSpecsFromInputStream extends AbstractSourceDocumentSpecs
@@ -48,8 +45,8 @@ public class SourceDocumentSpecsFromInputStream extends AbstractSourceDocumentSp
    * @param closeStream If we close the stream on completion.
    */
   public SourceDocumentSpecsFromInputStream(
-      @NonNull final InputStream inputStream,
-      @NonNull final TemporaryFileMaker fileMaker,
+      final InputStream inputStream,
+      final TemporaryFileMaker fileMaker,
       final boolean closeStream) {
     super(fileMaker.makeTemporaryFile());
 
@@ -60,15 +57,14 @@ public class SourceDocumentSpecsFromInputStream extends AbstractSourceDocumentSp
     this.closeStream = closeStream;
   }
 
-  @NonNull
   @Override
   public File getFile() {
 
     // Write the InputStream to the temp file
     final File tempFile =
-        Optional.ofNullable(getFormat())
-            .map(format -> fileMaker.makeTemporaryFile(format.getExtension()))
-            .orElse(super.getFile());
+        getFormat() == null
+            ? super.getFile()
+            : fileMaker.makeTemporaryFile(getFormat().getExtension());
     try {
       final FileOutputStream outputStream = new FileOutputStream(tempFile);
       outputStream.getChannel().lock();
@@ -85,7 +81,7 @@ public class SourceDocumentSpecsFromInputStream extends AbstractSourceDocumentSp
   }
 
   @Override
-  public void onConsumed(@NonNull final File tempFile) {
+  public void onConsumed(final File tempFile) {
 
     // The temporary file must be deleted
     FileUtils.deleteQuietly(tempFile);

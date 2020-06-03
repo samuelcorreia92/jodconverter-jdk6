@@ -19,8 +19,6 @@
 
 package org.jodconverter.core.task;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import org.jodconverter.core.job.SourceDocumentSpecs;
 
 /**
@@ -37,13 +35,12 @@ public abstract class AbstractOfficeTask implements OfficeTask {
    *
    * @param source The source specifications of the document.
    */
-  public AbstractOfficeTask(@NonNull final SourceDocumentSpecs source) {
+  public AbstractOfficeTask(final SourceDocumentSpecs source) {
     super();
 
     this.source = source;
   }
 
-  @NonNull
   @Override
   public String toString() {
     return getClass().getSimpleName() + "{" + "source=" + source + '}';

@@ -8,6 +8,7 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'pmd'
+apply plugin: 'maven'
 apply plugin: 'checkstyle'
 apply plugin: 'nebula.facet'
 apply plugin: 'jacoco'
@@ -103,19 +104,19 @@ tasks.withType(Checkstyle) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Spotless
 
-spotless {
-
-    java {
-        // Format code using google java format
-        googleJavaFormat()
-
-        // Import order
-        importOrderFile "$rootDir/spotless.importorder"
-
-        // Java Source Header File
-        licenseHeaderFile("$rootDir/spotless.license.java")
-    }
-}
+//spotless {
+//
+//    java {
+//        // Format code using google java format
+//        googleJavaFormat()
+//
+//        // Import order
+//        importOrderFile "$rootDir/spotless.importorder"
+//
+//        // Java Source Header File
+//        licenseHeaderFile("$rootDir/spotless.license.java")
+//    }
+//}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Test

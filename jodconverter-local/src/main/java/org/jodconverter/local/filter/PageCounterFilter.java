@@ -19,23 +19,17 @@
 
 package org.jodconverter.local.filter;
 
-import java.util.Objects;
-
 import com.sun.star.drawing.XDrawPages;
 import com.sun.star.drawing.XDrawPagesSupplier;
 import com.sun.star.frame.XModel;
 import com.sun.star.lang.XComponent;
 import com.sun.star.sheet.XSpreadsheetDocument;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jodconverter.core.office.OfficeContext;
+import org.jodconverter.local.office.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jodconverter.core.office.OfficeContext;
-import org.jodconverter.local.office.utils.Calc;
-import org.jodconverter.local.office.utils.Draw;
-import org.jodconverter.local.office.utils.Lo;
-import org.jodconverter.local.office.utils.Props;
-import org.jodconverter.local.office.utils.Write;
+import java.util.Objects;
 
 /** This filter is used to count the number of pages of a document. */
 public class PageCounterFilter implements Filter {
@@ -46,9 +40,9 @@ public class PageCounterFilter implements Filter {
 
   @Override
   public void doFilter(
-      @NonNull final OfficeContext context,
-      @NonNull final XComponent document,
-      @NonNull final FilterChain chain)
+      final OfficeContext context,
+      final XComponent document,
+      final FilterChain chain)
       throws Exception {
 
     if (Write.isText(document)) {

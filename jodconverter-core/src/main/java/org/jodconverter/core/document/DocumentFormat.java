@@ -19,20 +19,9 @@
 
 package org.jodconverter.core.document;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import org.jodconverter.core.util.AssertUtils;
+
+import java.util.*;
 
 /** Contains the required information used to deal with a specific document format . */
 public class DocumentFormat {
@@ -49,7 +38,6 @@ public class DocumentFormat {
    *
    * @return A new builder instance.
    */
-  @NonNull
   public static Builder builder() {
     return new Builder();
   }
@@ -61,8 +49,7 @@ public class DocumentFormat {
    * @return A {@link DocumentFormat}, which will be modifiable, unlike the default document formats
    *     are.
    */
-  @NonNull
-  public static DocumentFormat copy(@NonNull final DocumentFormat sourceFormat) {
+  public static DocumentFormat copy(final DocumentFormat sourceFormat) {
     return new Builder().from(sourceFormat).unmodifiable(false).build();
   }
 
@@ -73,8 +60,7 @@ public class DocumentFormat {
    * @return A {@link DocumentFormat}, which will be unmodifiable, like the default document formats
    *     are.
    */
-  @NonNull
-  public static DocumentFormat unmodifiableCopy(@NonNull final DocumentFormat sourceFormat) {
+  public static DocumentFormat unmodifiableCopy(final DocumentFormat sourceFormat) {
     return new Builder().from(sourceFormat).unmodifiable(true).build();
   }
 
@@ -106,7 +92,7 @@ public class DocumentFormat {
     AssertUtils.notNull(inputFamily, "inputFamily must not be null");
 
     this.name = name;
-    this.extensions = new ArrayList<>(extensions);
+    this.extensions = new ArrayList<String>(extensions);
     this.mediaType = mediaType;
     this.inputFamily = inputFamily;
     if (loadProperties == null) {
@@ -114,21 +100,21 @@ public class DocumentFormat {
     } else {
       this.loadProperties =
           unmodifiable
-              ? Collections.unmodifiableMap(new HashMap<>(loadProperties))
-              : new HashMap<>(loadProperties);
+              ? Collections.unmodifiableMap(new HashMap<String, Object>(loadProperties))
+              : new HashMap<String, Object>(loadProperties);
     }
     if (storeProperties == null) {
       this.storeProperties = null;
     } else {
       final Map<DocumentFamily, Map<String, Object>> familyMap =
-          new EnumMap<>(DocumentFamily.class);
-      storeProperties.forEach(
-          (family, props) ->
-              familyMap.put(
-                  family,
-                  unmodifiable
-                      ? Collections.unmodifiableMap(new HashMap<>(props))
-                      : new HashMap<>(props)));
+          new EnumMap<DocumentFamily, Map<String, Object>>(DocumentFamily.class);
+      for (Map.Entry<DocumentFamily, Map<String, Object>> entry : storeProperties.entrySet()) {
+        familyMap.put(
+            entry.getKey(),
+            unmodifiable
+                ? Collections.unmodifiableMap(new HashMap<String, Object>(entry.getValue()))
+                : new HashMap<String, Object>(entry.getValue()));
+      }
       this.storeProperties = unmodifiable ? Collections.unmodifiableMap(familyMap) : familyMap;
     }
   }
@@ -139,9 +125,8 @@ public class DocumentFormat {
    *
    * @return A string that represents an extension.
    */
-  @NonNull
   public String getExtension() {
-    return extensions.get(0);
+    return this.extensions.get(0);
   }
 
   /**
@@ -149,8 +134,7 @@ public class DocumentFormat {
    *
    * @return A list of string that represents the extensions.
    */
-  @NonNull
-  public List<@NonNull String> getExtensions() {
+  public List<String> getExtensions() {
     return extensions;
   }
 
@@ -159,7 +143,6 @@ public class DocumentFormat {
    *
    * @return The input DocumentFamily of the document format.
    */
-  @NonNull
   public DocumentFamily getInputFamily() {
     return inputFamily;
   }
@@ -169,8 +152,7 @@ public class DocumentFormat {
    *
    * @return A map containing the properties to apply when loading a document of this format.
    */
-  @Nullable
-  public Map<@NonNull String, @NonNull Object> getLoadProperties() {
+  public Map<String, Object> getLoadProperties() {
     return loadProperties;
   }
 
@@ -179,7 +161,6 @@ public class DocumentFormat {
    *
    * @return A string that represents the media type.
    */
-  @NonNull
   public String getMediaType() {
     return mediaType;
   }
@@ -189,7 +170,6 @@ public class DocumentFormat {
    *
    * @return A string that represents the name of the format.
    */
-  @NonNull
   public String getName() {
     return name;
   }
@@ -201,9 +181,7 @@ public class DocumentFormat {
    * @return A DocumentFamily/Map pairs containing the properties to apply when storing a document
    *     of this format, by DocumentFamily.
    */
-  @Nullable
-  public Map<@NonNull DocumentFamily, @NonNull Map<@NonNull String, @NonNull Object>>
-      getStoreProperties() {
+  public Map<DocumentFamily, Map<String, Object>> getStoreProperties() {
     return storeProperties;
   }
 
@@ -214,14 +192,11 @@ public class DocumentFormat {
    * @param family The DocumentFamily for which the properties are get.
    * @return A map containing the properties to apply when storing a document to this format.
    */
-  @Nullable
-  public Map<@NonNull String, @NonNull Object> getStoreProperties(
-      @NonNull final DocumentFamily family) {
+  public Map<String, Object> getStoreProperties(final DocumentFamily family) {
 
     return storeProperties == null ? null : storeProperties.get(family);
   }
 
-  @NonNull
   @Override
   public String toString() {
     return getClass().getSimpleName()
@@ -266,7 +241,6 @@ public class DocumentFormat {
      *
      * @return The converter that is specified by this builder.
      */
-    @NonNull
     public DocumentFormat build() {
 
       return new DocumentFormat(
@@ -279,23 +253,25 @@ public class DocumentFormat {
      * @param sourceFormat The source document format, cannot be null.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder from(@NonNull final DocumentFormat sourceFormat) {
+    public Builder from(final DocumentFormat sourceFormat) {
 
       AssertUtils.notNull(sourceFormat, "sourceFormat must not be null");
       this.name = sourceFormat.getName();
-      this.extensions = new LinkedHashSet<>(sourceFormat.getExtensions());
+      this.extensions = new LinkedHashSet<String>(sourceFormat.getExtensions());
       this.mediaType = sourceFormat.getMediaType();
       this.inputFamily = sourceFormat.getInputFamily();
       this.loadProperties =
           sourceFormat.getLoadProperties() == null
               ? null
-              : new HashMap<>(sourceFormat.getLoadProperties());
+              : new HashMap<String, Object>(sourceFormat.getLoadProperties());
       if (sourceFormat.getStoreProperties() != null) {
-        this.storeProperties = new EnumMap<>(DocumentFamily.class);
-        sourceFormat
-            .getStoreProperties()
-            .forEach((family, propMap) -> this.storeProperties.put(family, new HashMap<>(propMap)));
+        this.storeProperties =
+            new EnumMap<DocumentFamily, Map<String, Object>>(DocumentFamily.class);
+
+        for (Map.Entry<DocumentFamily, Map<String, Object>> entry :
+            sourceFormat.getStoreProperties().entrySet()) {
+          this.storeProperties.put(entry.getKey(), new HashMap<String, Object>(entry.getValue()));
+        }
       }
 
       return this;
@@ -307,12 +283,11 @@ public class DocumentFormat {
      * @param extension The extension, cannot be null.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder extension(@NonNull final String extension) {
+    public Builder extension(final String extension) {
 
       AssertUtils.notBlank(extension, "extension must not be null nor blank");
       if (this.extensions == null) {
-        this.extensions = new LinkedHashSet<>();
+        this.extensions = new LinkedHashSet<String>();
       }
       this.extensions.add(extension);
       return this;
@@ -325,8 +300,7 @@ public class DocumentFormat {
      * @param inputFamily The DocumentFamily, cannot be null.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder inputFamily(@NonNull final DocumentFamily inputFamily) {
+    public Builder inputFamily(final DocumentFamily inputFamily) {
 
       AssertUtils.notNull(inputFamily, "inputFamily must not be null");
       this.inputFamily = inputFamily;
@@ -342,8 +316,7 @@ public class DocumentFormat {
      *     map.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder loadProperty(@NonNull final String name, @Nullable final Object value) {
+    public Builder loadProperty(final String name, final Object value) {
 
       AssertUtils.notBlank(name, "name must not be null nor blank");
 
@@ -358,7 +331,7 @@ public class DocumentFormat {
       } else {
         // Add the property if a value is given.
         if (loadProperties == null) {
-          loadProperties = new HashMap<>();
+          loadProperties = new HashMap<String, Object>();
         }
         loadProperties.put(name, value);
       }
@@ -372,8 +345,7 @@ public class DocumentFormat {
      * @param mediaType A string that represents the media type, cannot be null.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder mediaType(@NonNull final String mediaType) {
+    public Builder mediaType(final String mediaType) {
 
       AssertUtils.notBlank(mediaType, "mediaType must not be null nor blank");
       this.mediaType = mediaType;
@@ -386,8 +358,7 @@ public class DocumentFormat {
      * @param name The name of the document format, cannot be null.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder name(@NonNull final String name) {
+    public Builder name(final String name) {
 
       AssertUtils.notBlank(name, "name must not be null nor blank");
       this.name = name;
@@ -402,7 +373,6 @@ public class DocumentFormat {
      *     creation, {@code false} otherwise.
      * @return This builder instance.
      */
-    @NonNull
     public Builder unmodifiable(final boolean unmodifiable) {
 
       this.unmodifiable = unmodifiable;
@@ -419,11 +389,8 @@ public class DocumentFormat {
      *     map.
      * @return This builder instance.
      */
-    @NonNull
     public Builder storeProperty(
-        @NonNull final DocumentFamily documentFamily,
-        @NonNull final String name,
-        @Nullable final Object value) {
+        final DocumentFamily documentFamily, final String name, final Object value) {
 
       AssertUtils.notNull(documentFamily, "documentFamily must not be null");
       AssertUtils.notBlank(name, "name must not be null nor blank");
@@ -445,11 +412,14 @@ public class DocumentFormat {
       } else {
         // Add the property if a value is given.
         if (storeProperties == null) {
-          storeProperties = new EnumMap<>(DocumentFamily.class);
+          storeProperties = new EnumMap<DocumentFamily, Map<String, Object>>(DocumentFamily.class);
         }
-        storeProperties.computeIfAbsent(documentFamily, key -> new HashMap<>()).put(name, value);
-      }
 
+        if (!storeProperties.containsKey(documentFamily)) {
+          storeProperties.put(documentFamily, new HashMap<String, Object>());
+          storeProperties.get(documentFamily).put(name, value);
+        }
+      }
       return this;
     }
   }

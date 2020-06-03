@@ -19,13 +19,10 @@
 
 package org.jodconverter.local.office;
 
-import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jodconverter.local.process.PumpStreamHandler;
 import org.jodconverter.local.process.StreamPumper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Wrapper class for a process we want to redirect the output and error stream. */
 class VerboseProcess {
@@ -43,14 +40,28 @@ class VerboseProcess {
   /* default */ VerboseProcess(final Process process) {
     super();
 
-    Objects.requireNonNull(process, "process must not be null");
+    if (process == null) {
+      throw new NullPointerException("process must not be null");
+    }
 
     this.process = process;
 
     streamHandler =
         new PumpStreamHandler(
-            new StreamPumper(process.getInputStream(), LOGGER::info),
-            new StreamPumper(process.getErrorStream(), LOGGER::error));
+            new StreamPumper(
+                process.getInputStream(),
+                new StreamPumper.LineConsumer() {
+                  public void consume(String line) {
+                    LOGGER.info(line);
+                  }
+                }),
+            new StreamPumper(
+                process.getErrorStream(),
+                new StreamPumper.LineConsumer() {
+                  public void consume(String line) {
+                    LOGGER.error(line);
+                  }
+                }));
     streamHandler.start();
   }
 

@@ -19,22 +19,20 @@
 
 package org.jodconverter.local.office;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jodconverter.core.office.AbstractOfficeManagerPool;
 import org.jodconverter.core.office.InstalledOfficeManagerHolder;
+import org.jodconverter.core.office.OfficeManager;
 import org.jodconverter.core.office.OfficeUtils;
 import org.jodconverter.core.util.AssertUtils;
 import org.jodconverter.core.util.StringUtils;
 import org.jodconverter.local.process.ProcessManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Default {@link org.jodconverter.core.office.OfficeManager} implementation that uses a pool of
@@ -49,7 +47,6 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
    *
    * @return A new builder instance.
    */
-  @NonNull
   public static Builder builder() {
     return new Builder();
   }
@@ -59,7 +56,6 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
    *
    * @return A {@link LocalOfficeManager} with default configuration.
    */
-  @NonNull
   public static LocalOfficeManager make() {
     return builder().build();
   }
@@ -73,7 +69,6 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
    *
    * @return A {@link LocalOfficeManager} with default configuration.
    */
-  @NonNull
   public static LocalOfficeManager install() {
     return builder().install().build();
   }
@@ -94,24 +89,25 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
       final Long taskQueueTimeout) {
     super(workingDir, officeUrls.size(), taskQueueTimeout);
 
-    setEntries(
-        officeUrls.stream()
-            .map(
-                officeUrl ->
-                    new OfficeProcessManagerPoolEntry(
-                        officeUrl,
-                        officeHome,
-                        workingDir,
-                        processManager,
-                        runAsArgs,
-                        templateProfileDir,
-                        killExistingProcess,
-                        processTimeout,
-                        processRetryInterval,
-                        taskExecutionTimeout,
-                        maxTasksPerProcess,
-                        disableOpengl))
-            .collect(Collectors.toList()));
+    List<OfficeManager> officeManagers = new ArrayList<OfficeManager>();
+    for (OfficeUrl officeUrl : officeUrls) {
+      officeManagers.add(
+          new OfficeProcessManagerPoolEntry(
+              officeUrl,
+              officeHome,
+              workingDir,
+              processManager,
+              runAsArgs,
+              templateProfileDir,
+              killExistingProcess,
+              processTimeout,
+              processRetryInterval,
+              taskExecutionTimeout,
+              maxTasksPerProcess,
+              disableOpengl));
+    }
+
+    setEntries(officeManagers);
   }
 
   /**
@@ -126,7 +122,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
     private static final long MIN_PROCESS_RETRY_INTERVAL = 0L; // No delay.
     // The maximum value for the delay between each try when executing a process call
     // (start/terminate).
-    private static final long MAX_PROCESS_RETRY_INTERVAL = 10_000L; // 10 sec.
+    private static final long MAX_PROCESS_RETRY_INTERVAL = 10000L; // 10 sec.
 
     private List<String> pipeNames;
     private List<Integer> portNumbers;
@@ -148,7 +144,6 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
       super();
     }
 
-    @NonNull
     @Override
     public LocalOfficeManager build() {
 
@@ -209,8 +204,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @param pipeNames The pipe names to use.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder pipeNames(@Nullable final String... pipeNames) {
+    public Builder pipeNames(final String... pipeNames) {
 
       if (pipeNames != null && pipeNames.length != 0) {
         this.pipeNames = Arrays.asList(pipeNames);
@@ -225,11 +219,12 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @param portNumbers The port numbers to use.
      * @return This builder instance.
      */
-    @NonNull
     public Builder portNumbers(final int... portNumbers) {
-
       if (portNumbers != null && portNumbers.length != 0) {
-        this.portNumbers = Arrays.stream(portNumbers).boxed().collect(Collectors.toList());
+        this.portNumbers = new ArrayList<Integer>(portNumbers.length);
+        for (int portNumber : portNumbers) {
+          this.portNumbers.add(portNumber);
+        }
       }
       return this;
     }
@@ -240,8 +235,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @param officeHome The new home directory to set.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder officeHome(@Nullable final File officeHome) {
+    public Builder officeHome(final File officeHome) {
 
       this.officeHome = officeHome;
       return this;
@@ -253,8 +247,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @param officeHome The new home directory to set.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder officeHome(@Nullable final String officeHome) {
+    public Builder officeHome(final String officeHome) {
 
       return StringUtils.isBlank(officeHome) ? this : officeHome(new File(officeHome));
     }
@@ -266,8 +259,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @param processManager The provided process manager.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder processManager(@Nullable final ProcessManager processManager) {
+    public Builder processManager(final ProcessManager processManager) {
 
       this.processManager = processManager;
       return this;
@@ -285,14 +277,13 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @see org.jodconverter.local.process.ProcessManager
      * @see org.jodconverter.local.process.AbstractProcessManager
      */
-    @NonNull
-    public Builder processManager(@Nullable final String processManagerClass) {
+    public Builder processManager(final String processManagerClass) {
 
       try {
         return StringUtils.isBlank(processManagerClass)
             ? this
             : processManager((ProcessManager) Class.forName(processManagerClass).newInstance());
-      } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
+      } catch (Exception ex) {
         throw new IllegalArgumentException(
             "Could not create a process manager from the specified class name: "
                 + processManagerClass,
@@ -306,8 +297,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @param runAsArgs The sudo arguments for a unix os.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder runAsArgs(@Nullable final String... runAsArgs) {
+    public Builder runAsArgs(final String... runAsArgs) {
 
       if (runAsArgs != null && runAsArgs.length != 0) {
         this.runAsArgs = Arrays.asList(runAsArgs);
@@ -321,8 +311,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @param templateProfileDir The new template profile directory.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder templateProfileDir(@Nullable final File templateProfileDir) {
+    public Builder templateProfileDir(final File templateProfileDir) {
 
       this.templateProfileDir = templateProfileDir;
       return this;
@@ -334,8 +323,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @param templateProfileDir The new template profile directory.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder templateProfileDir(@Nullable final String templateProfileDir) {
+    public Builder templateProfileDir(final String templateProfileDir) {
 
       return StringUtils.isBlank(templateProfileDir)
           ? this
@@ -350,8 +338,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @param templateProfileDir The new template profile directory.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder templateProfileDirOrDefault(@Nullable final File templateProfileDir) {
+    public Builder templateProfileDirOrDefault(final File templateProfileDir) {
 
       if (templateProfileDir != null) {
         this.useDefaultOnInvalidTemplateProfileDir = true;
@@ -368,8 +355,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @param templateProfileDir The new template profile directory.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder templateProfileDirOrDefault(@Nullable final String templateProfileDir) {
+    public Builder templateProfileDirOrDefault(final String templateProfileDir) {
 
       return StringUtils.isBlank(templateProfileDir)
           ? this
@@ -386,8 +372,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      *     created with the same connection string, {@code false} otherwise.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder killExistingProcess(@Nullable final Boolean killExistingProcess) {
+    public Builder killExistingProcess(final Boolean killExistingProcess) {
 
       this.killExistingProcess = killExistingProcess;
       return this;
@@ -402,8 +387,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @param processTimeout The process timeout, in milliseconds.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder processTimeout(@Nullable final Long processTimeout) {
+    public Builder processTimeout(final Long processTimeout) {
 
       if (processTimeout != null) {
         AssertUtils.isTrue(
@@ -423,8 +407,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @param processRetryInterval The retry interval, in milliseconds.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder processRetryInterval(@Nullable final Long processRetryInterval) {
+    public Builder processRetryInterval(final Long processRetryInterval) {
 
       if (processRetryInterval != null) {
         AssertUtils.isTrue(
@@ -446,8 +429,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @param maxTasksPerProcess The new maximum number of tasks an office process can execute.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder maxTasksPerProcess(@Nullable final Integer maxTasksPerProcess) {
+    public Builder maxTasksPerProcess(final Integer maxTasksPerProcess) {
 
       if (maxTasksPerProcess != null) {
         AssertUtils.isTrue(
@@ -468,8 +450,7 @@ public final class LocalOfficeManager extends AbstractOfficeManagerPool {
      * @param disableOpengl {@code true} to disable OpenGL, {@code false} otherwise.
      * @return This builder instance.
      */
-    @NonNull
-    public Builder disableOpengl(@Nullable final Boolean disableOpengl) {
+    public Builder disableOpengl(final Boolean disableOpengl) {
 
       this.disableOpengl = disableOpengl;
       return this;

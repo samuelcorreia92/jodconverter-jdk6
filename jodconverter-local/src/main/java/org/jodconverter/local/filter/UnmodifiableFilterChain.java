@@ -19,9 +19,6 @@
 
 package org.jodconverter.local.filter;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 /** Unmodifiable implementation of FilterChain. */
 public class UnmodifiableFilterChain extends AbstractFilterChain {
 
@@ -30,11 +27,11 @@ public class UnmodifiableFilterChain extends AbstractFilterChain {
    *
    * @param filters The filters to add to the chain.
    */
-  public UnmodifiableFilterChain(@Nullable final Filter... filters) {
+  public UnmodifiableFilterChain(final Filter... filters) {
     super(true, filters);
   }
 
-  @NonNull
+
   @Override
   public FilterChain copy() {
     return new UnmodifiableFilterChain(filters.toArray(new Filter[0]));

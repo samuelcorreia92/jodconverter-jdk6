@@ -112,12 +112,12 @@ public class JodConverterLocalProperties {
     this.enabled = enabled;
   }
 
-  @Nullable
+
   public String getOfficeHome() {
     return officeHome;
   }
 
-  public void setOfficeHome(@Nullable final String officeHome) {
+  public void setOfficeHome(final String officeHome) {
     this.officeHome = officeHome;
   }
 
@@ -129,21 +129,21 @@ public class JodConverterLocalProperties {
     this.portNumbers = portNumbers;
   }
 
-  @Nullable
+
   public String getWorkingDir() {
     return workingDir;
   }
 
-  public void setWorkingDir(@Nullable final String workingDir) {
+  public void setWorkingDir(final String workingDir) {
     this.workingDir = workingDir;
   }
 
-  @Nullable
+
   public String getTemplateProfileDir() {
     return templateProfileDir;
   }
 
-  public void setTemplateProfileDir(@Nullable final String templateProfileDir) {
+  public void setTemplateProfileDir(final String templateProfileDir) {
     this.templateProfileDir = templateProfileDir;
   }
 
@@ -195,31 +195,31 @@ public class JodConverterLocalProperties {
     this.taskQueueTimeout = taskQueueTimeout;
   }
 
-  @Nullable
+
   public String getProcessManagerClass() {
     return processManagerClass;
   }
 
-  public void setProcessManagerClass(@Nullable final String processManagerClass) {
+  public void setProcessManagerClass(final String processManagerClass) {
     this.processManagerClass = processManagerClass;
   }
 
-  @Nullable
+
   public String getDocumentFormatRegistry() {
     return documentFormatRegistry;
   }
 
-  public void setDocumentFormatRegistry(@Nullable final String documentFormatRegistry) {
+  public void setDocumentFormatRegistry(final String documentFormatRegistry) {
     this.documentFormatRegistry = documentFormatRegistry;
   }
 
-  @Nullable
-  public Map<@NonNull String, @NonNull DocumentFormatProperties> getFormatOptions() {
+
+  public Map<String, DocumentFormatProperties> getFormatOptions() {
     return formatOptions;
   }
 
   public void setFormatOptions(
-      @Nullable final Map<@NonNull String, @NonNull DocumentFormatProperties> formatOptions) {
+      final Map<String, DocumentFormatProperties> formatOptions) {
     this.formatOptions = formatOptions;
   }
 }

@@ -21,9 +21,6 @@ package org.jodconverter.core.office;
 
 import java.io.File;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 /** Provides helper functions for office. */
 public final class OfficeUtils {
 
@@ -32,7 +29,7 @@ public final class OfficeUtils {
    *
    * @return A {@code File} instance that is default working directory.
    */
-  @NonNull
+
   public static File getDefaultWorkingDir() {
     return new File(System.getProperty("java.io.tmpdir"));
   }
@@ -62,7 +59,7 @@ public final class OfficeUtils {
    *
    * @param manager the manager to stop, may be null or already stopped.
    */
-  public static void stopQuietly(@Nullable final OfficeManager manager) {
+  public static void stopQuietly(final OfficeManager manager) {
 
     try {
       if (manager != null) {

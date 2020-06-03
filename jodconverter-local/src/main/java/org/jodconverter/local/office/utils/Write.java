@@ -21,8 +21,6 @@ package org.jodconverter.local.office.utils;
 
 import com.sun.star.lang.XComponent;
 import com.sun.star.text.XTextDocument;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A collection of utility functions to make Office Text documents (Writer) easier to use.
@@ -38,7 +36,7 @@ public final class Write { // NOPMD - Disable utility class name rule violation
    * @param document The document to test.
    * @return {@code true} if the document is a Text document, {@code false} otherwise.
    */
-  public static boolean isText(@NonNull final XComponent document) {
+  public static boolean isText(final XComponent document) {
     return Info.isDocumentType(document, Lo.WRITER_SERVICE);
   }
 
@@ -48,14 +46,13 @@ public final class Write { // NOPMD - Disable utility class name rule violation
    * @param document The document to cast.
    * @return The {@link XTextDocument}, or null if the document is not a Text document.
    */
-  @Nullable
-  public static XTextDocument getTextDoc(@Nullable final XComponent document) {
+  public static XTextDocument getTextDoc(final XComponent document) {
 
     if (document == null) {
       return null;
     }
 
-    return Lo.qiOptional(XTextDocument.class, document).orElse(null);
+    return Lo.qiOptional(XTextDocument.class, document).orNull();
   }
 
   // Suppresses default constructor, ensuring non-instantiability.

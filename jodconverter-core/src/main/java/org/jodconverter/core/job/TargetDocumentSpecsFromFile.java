@@ -19,11 +19,9 @@
 
 package org.jodconverter.core.job;
 
-import java.io.File;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import org.jodconverter.core.util.FileUtils;
+
+import java.io.File;
 
 /** Target document specifications for from a file. */
 public class TargetDocumentSpecsFromFile extends AbstractTargetDocumentSpecs
@@ -34,13 +32,15 @@ public class TargetDocumentSpecsFromFile extends AbstractTargetDocumentSpecs
    *
    * @param file The target file.
    */
-  public TargetDocumentSpecsFromFile(@NonNull final File file) {
+  public TargetDocumentSpecsFromFile(final File file) {
     super(file);
   }
 
   @Override
-  public void onFailure(@NonNull final File file, @NonNull final Exception exception) {
+  public void onComplete(File file) {}
 
+  @Override
+  public void onFailure(final File file, final Exception exception) {
     // Ensure the created file is deleted
     FileUtils.deleteQuietly(file);
   }

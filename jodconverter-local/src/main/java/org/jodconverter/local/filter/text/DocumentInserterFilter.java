@@ -19,25 +19,23 @@
 
 package org.jodconverter.local.filter.text;
 
-import static org.jodconverter.local.office.LocalOfficeUtils.toUrl;
-
-import java.io.File;
-import java.util.Objects;
-
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.document.XDocumentInsertable;
 import com.sun.star.lang.XComponent;
 import com.sun.star.text.XTextCursor;
 import com.sun.star.text.XTextDocument;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jodconverter.core.office.OfficeContext;
 import org.jodconverter.local.filter.Filter;
 import org.jodconverter.local.filter.FilterChain;
 import org.jodconverter.local.office.utils.Lo;
 import org.jodconverter.local.office.utils.Write;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.Objects;
+
+import static org.jodconverter.local.office.LocalOfficeUtils.toUrl;
 
 /** This filter is used to insert a document at the end of the document being converted. */
 public class DocumentInserterFilter implements Filter {
@@ -51,7 +49,7 @@ public class DocumentInserterFilter implements Filter {
    *
    * @param document The document to insert at the end of the current document.
    */
-  public DocumentInserterFilter(@NonNull final File document) {
+  public DocumentInserterFilter(final File document) {
     super();
 
     this.documentToInsert = document;
@@ -59,9 +57,9 @@ public class DocumentInserterFilter implements Filter {
 
   @Override
   public void doFilter(
-      @NonNull final OfficeContext context,
-      @NonNull final XComponent document,
-      @NonNull final FilterChain chain)
+      final OfficeContext context,
+      final XComponent document,
+      final FilterChain chain)
       throws Exception {
 
     LOGGER.debug("Applying the DocumentInserterFilter");

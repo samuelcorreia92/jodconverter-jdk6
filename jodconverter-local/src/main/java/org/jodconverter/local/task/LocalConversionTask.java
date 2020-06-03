@@ -19,25 +19,13 @@
 
 package org.jodconverter.local.task;
 
-import static org.jodconverter.local.office.LocalOfficeUtils.toUnoProperties;
-import static org.jodconverter.local.office.LocalOfficeUtils.toUrl;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.sun.star.frame.XStorable;
 import com.sun.star.io.IOException;
 import com.sun.star.lang.XComponent;
 import com.sun.star.task.ErrorCodeIOException;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jodconverter.core.document.DocumentFormat;
-import org.jodconverter.core.job.DocumentSpecs;
 import org.jodconverter.core.job.SourceDocumentSpecs;
 import org.jodconverter.core.job.TargetDocumentSpecs;
 import org.jodconverter.core.office.OfficeContext;
@@ -48,6 +36,15 @@ import org.jodconverter.local.filter.RefreshFilter;
 import org.jodconverter.local.office.LocalOfficeContext;
 import org.jodconverter.local.office.LocalOfficeUtils;
 import org.jodconverter.local.office.utils.Lo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.jodconverter.local.office.LocalOfficeUtils.toUnoProperties;
+import static org.jodconverter.local.office.LocalOfficeUtils.toUrl;
 
 /** Represents the default behavior for a local conversion task. */
 public class LocalConversionTask extends AbstractLocalOfficeTask {
@@ -74,32 +71,55 @@ public class LocalConversionTask extends AbstractLocalOfficeTask {
    *     {@code target} arguments.
    */
   public LocalConversionTask(
-      @NonNull final SourceDocumentSpecs source,
-      @NonNull final TargetDocumentSpecs target,
-      @Nullable final Map<@NonNull String, @NonNull Object> loadProperties,
-      @Nullable final FilterChain filterChain,
-      @Nullable final Map<@NonNull String, @NonNull Object> storeProperties) {
+      final SourceDocumentSpecs source,
+      final TargetDocumentSpecs target,
+      final Map<String, Object> loadProperties,
+      final FilterChain filterChain,
+      final Map<String, Object> storeProperties) {
     super(source, loadProperties);
 
     this.target = target;
-    this.filterChain =
-        Optional.ofNullable(filterChain).map(FilterChain::copy).orElse(RefreshFilter.CHAIN);
+    if (filterChain == null) {
+      this.filterChain = RefreshFilter.CHAIN;
+    } else {
+      this.filterChain = filterChain.copy();
+    }
     this.storeProperties = storeProperties;
   }
 
   @Override
-  public void execute(@NonNull final OfficeContext context) throws OfficeException {
+  public void execute(final OfficeContext context) throws OfficeException {
 
     LOGGER.info(
         "Executing local conversion task [{} -> {}]...",
         Optional.of(source)
-            .map(DocumentSpecs::getFormat)
-            .map(DocumentFormat::getExtension)
-            .orElse("?"),
+            .transform(
+                new Function<SourceDocumentSpecs, DocumentFormat>() {
+                  public DocumentFormat apply(SourceDocumentSpecs input) {
+                    return input.getFormat();
+                  }
+                })
+            .transform(
+                new Function<DocumentFormat, String>() {
+                  public String apply(DocumentFormat input) {
+                    return input.getExtension();
+                  }
+                })
+            .or("?"),
         Optional.of(target)
-            .map(DocumentSpecs::getFormat)
-            .map(DocumentFormat::getExtension)
-            .orElse("?"));
+            .transform(
+                new Function<TargetDocumentSpecs, DocumentFormat>() {
+                  public DocumentFormat apply(TargetDocumentSpecs input) {
+                    return input.getFormat();
+                  }
+                })
+            .transform(
+                new Function<DocumentFormat, String>() {
+                  public String apply(DocumentFormat input) {
+                    return input.getExtension();
+                  }
+                })
+            .or("?"));
     final LocalOfficeContext localContext = (LocalOfficeContext) context;
 
     // Obtain a source file that can be loaded by office. If the source
@@ -149,7 +169,7 @@ public class LocalConversionTask extends AbstractLocalOfficeTask {
   private Map<String, Object> getStoreProperties(final XComponent document) throws OfficeException {
     AssertUtils.notNull(target.getFormat(), "Target format must not be null");
 
-    final Map<String, Object> storeProps = new HashMap<>();
+    final Map<String, Object> storeProps = new HashMap<String, Object>();
     appendProperties(
         storeProps,
         target.getFormat().getStoreProperties(LocalOfficeUtils.getDocumentFamily(document)));
@@ -160,15 +180,14 @@ public class LocalConversionTask extends AbstractLocalOfficeTask {
 
   // Modifies the document after it has been loaded and before
   // it gets saved in the new format.
-  protected void modifyDocument(
-      @NonNull final OfficeContext context, @NonNull final XComponent document)
+  protected void modifyDocument(final OfficeContext context, final XComponent document)
       throws OfficeException {
 
     filterChain.doFilter(context, document);
   }
 
   // Stores the converted document as the output file.
-  protected void storeDocument(@NonNull final XComponent document, @NonNull final File targetFile)
+  protected void storeDocument(final XComponent document, final File targetFile)
       throws OfficeException {
 
     final Map<String, Object> storeProps = getStoreProperties(document);
@@ -187,7 +206,6 @@ public class LocalConversionTask extends AbstractLocalOfficeTask {
     }
   }
 
-  @NonNull
   @Override
   public String toString() {
     return getClass().getSimpleName()

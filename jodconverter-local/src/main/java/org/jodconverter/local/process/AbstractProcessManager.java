@@ -19,18 +19,17 @@
 
 package org.jodconverter.local.process;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
+import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import org.jodconverter.core.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jodconverter.core.util.StringUtils;
+import java.io.IOException;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Base class for all process manager implementations included in the standard JODConverter
@@ -51,10 +50,20 @@ public abstract class AbstractProcessManager implements ProcessManager {
   }
 
   private String buildOutput(final List<String> lines) {
-    Objects.requireNonNull(lines, "lines must not be null");
+    if (lines == null) {
+      throw new NullPointerException("lines must not be null");
+    }
 
     // Ignore empty lines
-    return lines.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("\n"));
+    return Joiner.on("\n")
+        .join(
+            Iterables.filter(
+                lines,
+                new Predicate<String>() {
+                  public boolean apply(String input) {
+                    return StringUtils.isNotBlank(input);
+                  }
+                }));
   }
 
   /**
@@ -64,8 +73,7 @@ public abstract class AbstractProcessManager implements ProcessManager {
    * @return The command execution output.
    * @throws IOException If an I/O error occurs.
    */
-  @NonNull
-  protected List<@NonNull String> execute(@NonNull final String[] cmdarray) throws IOException {
+  protected List<String> execute(final String[] cmdarray) throws IOException {
 
     final Process process = Runtime.getRuntime().exec(cmdarray);
 
@@ -104,7 +112,7 @@ public abstract class AbstractProcessManager implements ProcessManager {
   }
 
   @Override
-  public long findPid(@NonNull final ProcessQuery query) throws IOException {
+  public long findPid(final ProcessQuery query) throws IOException {
 
     final Pattern commandPattern =
         Pattern.compile(
@@ -133,8 +141,8 @@ public abstract class AbstractProcessManager implements ProcessManager {
           "Checking if process line matches the process line regex\nProcess line: {}", line);
       final Matcher lineMatcher = processLinePattern.matcher(line);
       if (lineMatcher.matches()) {
-        final String pid = lineMatcher.group("Pid");
-        final String commandLine = lineMatcher.group("CommandLine");
+        final String pid = lineMatcher.group(2);
+        final String commandLine = lineMatcher.group(1);
         if (LOGGER.isTraceEnabled()) {
           LOGGER.trace(
               "Line matches!\n"
@@ -161,7 +169,6 @@ public abstract class AbstractProcessManager implements ProcessManager {
    * @param process The name of the process to query for.
    * @return An array containing the command to call and its arguments.
    */
-  @NonNull
   protected abstract String[] getRunningProcessesCommand(String process);
 
   /**
@@ -172,6 +179,5 @@ public abstract class AbstractProcessManager implements ProcessManager {
    * @return The pattern.
    * @see #getRunningProcessesCommand(String)
    */
-  @NonNull
   protected abstract Pattern getRunningProcessLinePattern();
 }

@@ -19,12 +19,10 @@
 
 package org.jodconverter.local;
 
+import org.jodconverter.core.job.ConversionJobWithOptionalSourceFormatUnspecified;
+
 import java.io.File;
 import java.io.InputStream;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-
-import org.jodconverter.core.job.ConversionJobWithOptionalSourceFormatUnspecified;
 
 /**
  * Helper class that will create a {@link LocalConverter} using the previously installed {@link
@@ -42,9 +40,9 @@ public final class JodConverter { // NOPMD - Disable utility class name rule vio
    * @param source The conversion input as a file.
    * @return The current conversion specification.
    */
-  @NonNull
+
   public static ConversionJobWithOptionalSourceFormatUnspecified convert(
-      @NonNull final File source) {
+      final File source) {
 
     return LocalConverter.make().convert(source);
   }
@@ -55,9 +53,9 @@ public final class JodConverter { // NOPMD - Disable utility class name rule vio
    * @param source The conversion input as an input stream.
    * @return The current conversion specification.
    */
-  @NonNull
+
   public static ConversionJobWithOptionalSourceFormatUnspecified convert(
-      @NonNull final InputStream source) {
+      final InputStream source) {
 
     return LocalConverter.make().convert(source);
   }
@@ -69,9 +67,9 @@ public final class JodConverter { // NOPMD - Disable utility class name rule vio
    * @param closeStream Whether the {@link InputStream} is closed after the conversion terminates.
    * @return The current conversion specification.
    */
-  @NonNull
+
   public static ConversionJobWithOptionalSourceFormatUnspecified convert(
-      @NonNull final InputStream source, final boolean closeStream) {
+      final InputStream source, final boolean closeStream) {
 
     return LocalConverter.make().convert(source, closeStream);
   }

@@ -19,19 +19,19 @@
 
 package org.jodconverter.core.document;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import org.jodconverter.core.document.DocumentFormat.Builder;
+import org.jodconverter.core.util.IOUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Map;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.checkerframework.checker.nullness.qual.NonNull;
-
-import org.jodconverter.core.document.DocumentFormat.Builder;
-import org.jodconverter.core.util.IOUtils;
 
 /**
  * A JsonDocumentFormatRegistry contains a collection of {@code DocumentFormat} supported by office
@@ -46,10 +46,9 @@ public class JsonDocumentFormatRegistry extends SimpleDocumentFormatRegistry {
    * @return The created JsonDocumentFormatRegistry.
    * @throws IOException If an I/O error occurs.
    */
-  public static JsonDocumentFormatRegistry create(@NonNull final InputStream source)
-      throws IOException {
+  public static JsonDocumentFormatRegistry create(final InputStream source) throws IOException {
 
-    return create(IOUtils.toString(source, StandardCharsets.UTF_8));
+    return create(IOUtils.toString(source, Charset.forName("UTF-8")));
   }
 
   /**
@@ -61,11 +60,10 @@ public class JsonDocumentFormatRegistry extends SimpleDocumentFormatRegistry {
    * @throws IOException If an I/O error occurs.
    */
   public static JsonDocumentFormatRegistry create(
-      @NonNull final InputStream source,
-      @NonNull final Map<@NonNull String, @NonNull DocumentFormatProperties> customProperties)
+      final InputStream source, final Map<String, DocumentFormatProperties> customProperties)
       throws IOException {
 
-    return create(IOUtils.toString(source, StandardCharsets.UTF_8), customProperties);
+    return create(IOUtils.toString(source, Charset.forName("UTF-8")), customProperties);
   }
 
   /**
@@ -74,7 +72,7 @@ public class JsonDocumentFormatRegistry extends SimpleDocumentFormatRegistry {
    * @param source The string (JSON format) containing the DocumentFormat collection.
    * @return The created JsonDocumentFormatRegistry.
    */
-  public static JsonDocumentFormatRegistry create(@NonNull final String source) {
+  public static JsonDocumentFormatRegistry create(final String source) {
 
     final JsonDocumentFormatRegistry registry = new JsonDocumentFormatRegistry();
     registry.readJsonArray(source, null);
@@ -89,8 +87,7 @@ public class JsonDocumentFormatRegistry extends SimpleDocumentFormatRegistry {
    * @return The created JsonDocumentFormatRegistry.
    */
   public static JsonDocumentFormatRegistry create(
-      @NonNull final String source,
-      @NonNull final Map<@NonNull String, @NonNull DocumentFormatProperties> customProperties) {
+      final String source, final Map<String, DocumentFormatProperties> customProperties) {
 
     final JsonDocumentFormatRegistry registry = new JsonDocumentFormatRegistry();
     registry.readJsonArray(source, customProperties);
@@ -114,25 +111,37 @@ public class JsonDocumentFormatRegistry extends SimpleDocumentFormatRegistry {
 
     // Fill the registry with loaded formats. Note that we have to use
     // the constructor in order top create read only formats.
-    formats.stream()
-        .map(
-            fmt -> {
-              if (customProperties == null || !customProperties.containsKey(fmt.getExtension())) {
-                return DocumentFormat.unmodifiableCopy(fmt);
+
+    Iterable<DocumentFormat> documentFormats =
+        Iterables.transform(
+            formats,
+            new Function<DocumentFormat, DocumentFormat>() {
+              @Override
+              public DocumentFormat apply(DocumentFormat fmt) {
+                if (customProperties == null || !customProperties.containsKey(fmt.getExtension())) {
+                  return DocumentFormat.unmodifiableCopy(fmt);
+                }
+                final DocumentFormatProperties props = customProperties.get(fmt.getExtension());
+                final Builder builder = DocumentFormat.builder().from(fmt).unmodifiable(true);
+                // Add custom load/store properties.
+                for (Map.Entry<String, Object> entry : props.getLoad().entrySet()) {
+                  builder.loadProperty(entry.getKey(), entry.getValue());
+                }
+
+                for (Map.Entry<DocumentFamily, Map<String, Object>> entry :
+                    props.getStore().entrySet()) {
+                  for (Map.Entry<String, Object> entry2 : entry.getValue().entrySet()) {
+                    builder.storeProperty(entry.getKey(), entry2.getKey(), entry2.getValue());
+                  }
+                }
+
+                // Build the format.
+                return builder.build();
               }
-              final DocumentFormatProperties props = customProperties.get(fmt.getExtension());
-              final Builder builder = DocumentFormat.builder().from(fmt).unmodifiable(true);
-              // Add custom load/store properties.
-              props.getLoad().forEach(builder::loadProperty);
-              props
-                  .getStore()
-                  .forEach(
-                      (family, storeProps) ->
-                          storeProps.forEach(
-                              (name, value) -> builder.storeProperty(family, name, value)));
-              // Build the format.
-              return builder.build();
-            })
-        .forEach(this::addFormat);
+            });
+
+    for (DocumentFormat documentFormat : documentFormats) {
+      addFormat(documentFormat);
+    }
   }
 }

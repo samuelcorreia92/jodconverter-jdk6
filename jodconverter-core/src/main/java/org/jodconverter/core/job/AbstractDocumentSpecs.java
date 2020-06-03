@@ -19,14 +19,10 @@
 
 package org.jodconverter.core.job;
 
-import java.io.File;
-import java.util.Optional;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import org.jodconverter.core.document.DocumentFormat;
 import org.jodconverter.core.util.AssertUtils;
+
+import java.io.File;
 
 /**
  * Base class for all document specifications implementations.
@@ -38,7 +34,7 @@ public abstract class AbstractDocumentSpecs implements DocumentSpecs {
   private final File file;
   private DocumentFormat documentFormat;
 
-  protected AbstractDocumentSpecs(@NonNull final File file) {
+  protected AbstractDocumentSpecs(final File file) {
     super();
 
     AssertUtils.notNull(file, "file must not be null");
@@ -46,13 +42,13 @@ public abstract class AbstractDocumentSpecs implements DocumentSpecs {
     this.file = file;
   }
 
-  @NonNull
+
   @Override
   public File getFile() {
     return file;
   }
 
-  @Nullable
+
   @Override
   public DocumentFormat getFormat() {
     return documentFormat;
@@ -69,15 +65,13 @@ public abstract class AbstractDocumentSpecs implements DocumentSpecs {
     this.documentFormat = documentFormat;
   }
 
-  @NonNull
+
   @Override
   public String toString() {
-    return getClass().getSimpleName()
-        + "{"
-        + "file="
-        + Optional.of(file).map(File::getName)
-        + ", format="
-        + Optional.ofNullable(documentFormat).map(DocumentFormat::getExtension).orElse("null")
-        + '}';
+    return getClass().getSimpleName() + "{" + "file=" + file == null
+        ? ""
+        : file.getName() + ", format=" + documentFormat == null
+            ? "null"
+            : documentFormat.getExtension() + '}';
   }
 }

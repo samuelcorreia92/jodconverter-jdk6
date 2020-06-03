@@ -19,8 +19,6 @@
 
 package org.jodconverter.local.office;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import org.jodconverter.core.office.AbstractRetryable;
 import org.jodconverter.core.office.TemporaryException;
 
@@ -35,7 +33,7 @@ public class ExitCodeRetryable extends AbstractRetryable<RuntimeException> {
    *
    * @param process The process whose exit code is to be retrieved.
    */
-  public ExitCodeRetryable(@NonNull final VerboseProcess process) {
+  public ExitCodeRetryable(final VerboseProcess process) {
     super();
 
     this.process = process;

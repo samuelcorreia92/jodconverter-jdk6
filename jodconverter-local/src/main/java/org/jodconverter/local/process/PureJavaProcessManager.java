@@ -19,8 +19,6 @@
 
 package org.jodconverter.local.process;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 /**
  * {@link org.jodconverter.local.process.ProcessManager} implementation for Java.
  *
@@ -42,12 +40,24 @@ public class PureJavaProcessManager implements ProcessManager {
     return false;
   }
 
+  @Override
+  public long findPid(ProcessQuery query) {
+    return PID_UNKNOWN;
+  }
+
+  @Override
+  public void kill(Process process, long pid) {
+    if (process == null) {
+      throw new NullPointerException("process must not be null");
+    }
+    process.destroy();
+  }
+
   /**
    * Gets the default instance of {@code PureJavaProcessManager}.
    *
    * @return The default {@code PureJavaProcessManager} instance.
    */
-  @NonNull
   public static PureJavaProcessManager getDefault() {
     return DefaultHolder.INSTANCE;
   }

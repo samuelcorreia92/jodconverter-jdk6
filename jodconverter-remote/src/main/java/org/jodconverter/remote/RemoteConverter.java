@@ -19,15 +19,9 @@
 
 package org.jodconverter.remote;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import org.jodconverter.core.document.DefaultDocumentFormatRegistry;
 import org.jodconverter.core.document.DocumentFormatRegistry;
-import org.jodconverter.core.job.AbstractConversionJob;
-import org.jodconverter.core.job.AbstractConversionJobWithSourceFormatUnspecified;
-import org.jodconverter.core.job.AbstractConverter;
-import org.jodconverter.core.job.AbstractSourceDocumentSpecs;
-import org.jodconverter.core.job.AbstractTargetDocumentSpecs;
+import org.jodconverter.core.job.*;
 import org.jodconverter.core.office.InstalledOfficeManagerHolder;
 import org.jodconverter.core.office.OfficeException;
 import org.jodconverter.core.office.OfficeManager;
@@ -48,7 +42,7 @@ public class RemoteConverter extends AbstractConverter {
    *
    * @return A new builder instance.
    */
-  @NonNull
+
   public static Builder builder() {
     return new Builder();
   }
@@ -60,7 +54,7 @@ public class RemoteConverter extends AbstractConverter {
    *
    * @return A {@link RemoteConverter} with default configuration.
    */
-  @NonNull
+
   public static RemoteConverter make() {
 
     return builder().build();
@@ -74,8 +68,8 @@ public class RemoteConverter extends AbstractConverter {
    *     use to convert document.
    * @return A {@link RemoteConverter} with default configuration.
    */
-  @NonNull
-  public static RemoteConverter make(@NonNull final OfficeManager officeManager) {
+
+  public static RemoteConverter make(final OfficeManager officeManager) {
     return builder().officeManager(officeManager).build();
   }
 
@@ -84,10 +78,10 @@ public class RemoteConverter extends AbstractConverter {
     super(officeManager, formatRegistry);
   }
 
-  @NonNull
+
   @Override
   protected AbstractConversionJobWithSourceFormatUnspecified convert(
-      @NonNull final AbstractSourceDocumentSpecs source) {
+      final AbstractSourceDocumentSpecs source) {
 
     return new RemoteConversionJobWithSourceFormatUnspecified(source);
   }
@@ -101,9 +95,9 @@ public class RemoteConverter extends AbstractConverter {
       super(source, RemoteConverter.this.officeManager, RemoteConverter.this.formatRegistry);
     }
 
-    @NonNull
+
     @Override
-    protected AbstractConversionJob to(@NonNull final AbstractTargetDocumentSpecs target) {
+    protected AbstractConversionJob to(final AbstractTargetDocumentSpecs target) {
 
       return new RemoteConversionJob(source, target);
     }
@@ -138,7 +132,7 @@ public class RemoteConverter extends AbstractConverter {
       super();
     }
 
-    @NonNull
+
     @Override
     public RemoteConverter build() {
 

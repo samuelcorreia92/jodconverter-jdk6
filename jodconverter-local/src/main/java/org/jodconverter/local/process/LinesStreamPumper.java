@@ -23,18 +23,16 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 /** Read all lines from an input stream. */
 public class LinesStreamPumper extends StreamPumper {
 
   /** Class that store the lines. */
   private static class LinesConsumer implements LineConsumer {
 
-    private final List<String> lines = new ArrayList<>();
+    private final List<String> lines = new ArrayList<String>();
 
     @Override
-    public void consume(@NonNull final String line) {
+    public void consume(final String line) {
       lines.add(line);
     }
   }
@@ -44,7 +42,7 @@ public class LinesStreamPumper extends StreamPumper {
    *
    * @param stream The input stream to read from.
    */
-  public LinesStreamPumper(@NonNull final InputStream stream) {
+  public LinesStreamPumper(final InputStream stream) {
     super(stream, new LinesConsumer());
   }
 
@@ -53,8 +51,8 @@ public class LinesStreamPumper extends StreamPumper {
    *
    * @return The command output lines.
    */
-  @NonNull
-  public List<@NonNull String> getLines() {
+
+  public List<String> getLines() {
     return ((LinesConsumer) getConsumer()).lines;
   }
 }

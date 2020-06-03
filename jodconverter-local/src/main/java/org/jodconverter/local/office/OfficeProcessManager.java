@@ -19,13 +19,6 @@
 
 package org.jodconverter.local.office;
 
-import java.io.File;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.sun.star.beans.XHierarchicalPropertySet;
 import com.sun.star.beans.XHierarchicalPropertySetInfo;
 import com.sun.star.frame.XDesktop;
@@ -33,15 +26,21 @@ import com.sun.star.lang.DisposedException;
 import com.sun.star.lang.XComponent;
 import com.sun.star.uno.XComponentContext;
 import com.sun.star.util.XChangesBatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jodconverter.core.office.NamedThreadFactory;
 import org.jodconverter.core.office.OfficeException;
 import org.jodconverter.core.office.RetryTimeoutException;
 import org.jodconverter.local.office.utils.Info;
 import org.jodconverter.local.office.utils.Lo;
 import org.jodconverter.local.process.ProcessManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An {@link OfficeProcessManager} is responsible to manage an office process and the connection
@@ -57,7 +56,7 @@ class OfficeProcessManager {
   // The default initial delay a process call (start/terminate).
   private static final long DEFAULT_PROCESS_INITIAL_DELAY = 0L; // No delay
   // The default timeout when executing a process call (start/terminate).
-  private static final long DEFAULT_PROCESS_TIMEOUT = 120_000L; // 2 minutes
+  private static final long DEFAULT_PROCESS_TIMEOUT = 120000L; // 2 minutes
   // The default delay between each try when executing a process call (start/terminate).
   private static final long DEFAULT_PROCESS_RETRY_INTERVAL = 250L; // 0.25 secs.
   // The default behavior when an office process is started regarding to OpenGL usage.
@@ -143,7 +142,12 @@ class OfficeProcessManager {
   public void start() {
 
     // Submit a start task to the executor and wait
-    executor.execute(() -> startProcessAndConnect(false, true));
+    executor.execute(
+        new Runnable() {
+          public void run() {
+            OfficeProcessManager.this.startProcessAndConnect(false, true);
+          }
+        });
   }
 
   /**
@@ -157,11 +161,13 @@ class OfficeProcessManager {
     LOGGER.info("Restarting...");
 
     executor.execute(
-        () -> {
-          // On clean restart, we won't delete the instance profile directory,
-          // causing a faster start of an office process.
-          stopProcess(false);
-          startProcessAndConnect(true, false);
+        new Runnable() {
+          public void run() {
+            // On clean restart, we won't delete the instance profile directory,
+            // causing a faster start of an office process.
+            OfficeProcessManager.this.stopProcess(false);
+            OfficeProcessManager.this.startProcessAndConnect(true, false);
+          }
         });
   }
 
@@ -176,20 +182,22 @@ class OfficeProcessManager {
     LOGGER.info("Restarting due to lost connection...");
 
     executor.execute(
-        () -> {
-          if (disconnectExpected.compareAndSet(true, false)) {
-            LOGGER.debug("Connection lost because OpenGL was changed");
-            // Since we have lost the connection because OpenGL was changed.
-            // Thus, we want to keep the instance profile directory on restart.
-            ensureProcessExited(false);
-            startProcessAndConnect(true, false);
-          } else {
-            LOGGER.debug("Connection lost unexpectedly");
-            // Since we have lost the connection unexpectedly, it could mean that
-            // the office process has crashed. Thus, we want a clean instance profile
-            // directory on restart.
-            ensureProcessExited(true);
-            startProcessAndConnect(false, true);
+        new Runnable() {
+          public void run() {
+            if (disconnectExpected.compareAndSet(true, false)) {
+              LOGGER.debug("Connection lost because OpenGL was changed");
+              // Since we have lost the connection because OpenGL was changed.
+              // Thus, we want to keep the instance profile directory on restart.
+              OfficeProcessManager.this.ensureProcessExited(false);
+              OfficeProcessManager.this.startProcessAndConnect(true, false);
+            } else {
+              LOGGER.debug("Connection lost unexpectedly");
+              // Since we have lost the connection unexpectedly, it could mean that
+              // the office process has crashed. Thus, we want a clean instance profile
+              // directory on restart.
+              OfficeProcessManager.this.ensureProcessExited(true);
+              OfficeProcessManager.this.startProcessAndConnect(false, true);
+            }
           }
         });
   }
@@ -206,7 +214,12 @@ class OfficeProcessManager {
     LOGGER.info("Restarting due to task timeout...");
 
     // This will cause unexpected disconnection and subsequent restart.
-    executor.execute(process::forciblyTerminate);
+    executor.execute(
+        new Runnable() {
+          public void run() {
+            process.forciblyTerminate();
+          }
+        });
   }
 
   /** Stops an office process and waits until the process is stopped. */
@@ -216,7 +229,12 @@ class OfficeProcessManager {
     // This is required if we don't want to let garbage on disk since the
     // stopProcess must be fully executed to clean the temp files and
     // directories.
-    executor.execute(() -> stopProcess(true));
+    executor.execute(
+        new Runnable() {
+          public void run() {
+            OfficeProcessManager.this.stopProcess(true);
+          }
+        });
 
     // Shutdown the executor, no other task will be accepted.
     executor.shutdown();
@@ -272,7 +290,12 @@ class OfficeProcessManager {
         // Set disconnectExpected to tru in order to avoid instanceProfileDir deletion.
         disconnectExpected.set(true);
         // This will cause unexpected disconnection and subsequent restart.
-        executor.execute(process::forciblyTerminate);
+        executor.execute(
+            new Runnable() {
+              public void run() {
+                process.forciblyTerminate();
+              }
+            });
       }
 
     } catch (Exception ex) {
@@ -374,7 +397,7 @@ class OfficeProcessManager {
         final XHierarchicalPropertySetInfo propsInfo = properties.getHierarchicalPropertySetInfo();
         if (propsInfo.hasPropertyByHierarchicalName(PROP_PATH_USE_OPENGL)) {
           final boolean useOpengl =
-              (boolean) properties.getHierarchicalPropertyValue(PROP_PATH_USE_OPENGL);
+              (Boolean) properties.getHierarchicalPropertyValue(PROP_PATH_USE_OPENGL);
           LOGGER.info("Use OpenGL is set to {}", useOpengl);
           if (useOpengl) {
             properties.setHierarchicalPropertyValue(PROP_PATH_USE_OPENGL, false);

@@ -19,12 +19,11 @@
 
 package org.jodconverter.local.office;
 
-import java.util.List;
-import java.util.Locale;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Locale;
 
 /** Contains basic information about the office installation being used. */
 public final class OfficeDescriptor {
@@ -43,8 +42,8 @@ public final class OfficeDescriptor {
    * @param lines The output lines of the execution.
    * @return The descriptor.
    */
-  @NonNull
-  public static OfficeDescriptor fromHelpOutput(@NonNull final List<@NonNull String> lines) {
+
+  public static OfficeDescriptor fromHelpOutput(final List<String> lines) {
 
     final OfficeDescriptor desc = new OfficeDescriptor();
 
@@ -82,8 +81,8 @@ public final class OfficeDescriptor {
    * @param path The installation path.
    * @return The descriptor.
    */
-  @NonNull
-  public static OfficeDescriptor fromExecutablePath(@NonNull final String path) {
+
+  public static OfficeDescriptor fromExecutablePath(final String path) {
 
     final OfficeDescriptor desc = new OfficeDescriptor();
 
@@ -107,7 +106,7 @@ public final class OfficeDescriptor {
    *
    * @return LibreOffice or OpenOffice or ??? if unknown.
    */
-  @NonNull
+
   public String getProduct() {
     return product;
   }
@@ -117,7 +116,7 @@ public final class OfficeDescriptor {
    *
    * @return The version or ??? if unknown.
    */
-  @NonNull
+
   public String getVersion() {
     return version;
   }
@@ -132,7 +131,7 @@ public final class OfficeDescriptor {
     return useLongOptionNameGnuStyle;
   }
 
-  @NonNull
+
   @Override
   public String toString() {
     return String.format(

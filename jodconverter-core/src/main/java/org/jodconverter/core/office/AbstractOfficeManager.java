@@ -19,18 +19,15 @@
 
 package org.jodconverter.core.office;
 
+import org.jodconverter.core.util.FileUtils;
+import org.jodconverter.core.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.jodconverter.core.util.FileUtils;
-import org.jodconverter.core.util.StringUtils;
 
 /** Base class for all {@link OfficeManager}. */
 public abstract class AbstractOfficeManager implements OfficeManager, TemporaryFileMaker {
@@ -47,8 +44,8 @@ public abstract class AbstractOfficeManager implements OfficeManager, TemporaryF
    * @param workingDir The directory under which to create a temp directory.
    * @return The created directory.
    */
-  @NonNull
-  protected static File makeTempDir(@NonNull final File workingDir) {
+
+  protected static File makeTempDir(final File workingDir) {
 
     final File tempDir = new File(workingDir, "jodconverter_" + UUID.randomUUID().toString());
     //noinspection ResultOfMethodCallIgnored
@@ -64,7 +61,7 @@ public abstract class AbstractOfficeManager implements OfficeManager, TemporaryF
    *
    * @param workingDir The directory where temporary files and directories are created.
    */
-  protected AbstractOfficeManager(@NonNull final File workingDir) {
+  protected AbstractOfficeManager(final File workingDir) {
     super();
 
     this.workingDir = workingDir;
@@ -73,15 +70,15 @@ public abstract class AbstractOfficeManager implements OfficeManager, TemporaryF
     tempFileCounter = new AtomicLong(0);
   }
 
-  @NonNull
+
   @Override
   public File makeTemporaryFile() {
     return new File(tempDir, "tempfile_" + tempFileCounter.getAndIncrement());
   }
 
-  @NonNull
+
   @Override
-  public File makeTemporaryFile(@NonNull final String extension) {
+  public File makeTemporaryFile(final String extension) {
     return new File(tempDir, "tempfile_" + tempFileCounter.getAndIncrement() + "." + extension);
   }
 
@@ -127,7 +124,7 @@ public abstract class AbstractOfficeManager implements OfficeManager, TemporaryF
      *
      * @return The manager that is specified by this builder.
      */
-    @NonNull
+
     protected abstract AbstractOfficeManager build();
 
     /**
@@ -140,7 +137,7 @@ public abstract class AbstractOfficeManager implements OfficeManager, TemporaryF
      *
      * @return This builder instance.
      */
-    @NonNull
+
     public B install() {
 
       this.install = true;
@@ -156,8 +153,8 @@ public abstract class AbstractOfficeManager implements OfficeManager, TemporaryF
      * @param workingDir The new working directory to set.
      * @return This builder instance.
      */
-    @NonNull
-    public B workingDir(@Nullable final File workingDir) {
+
+    public B workingDir(final File workingDir) {
 
       this.workingDir = workingDir;
       return (B) this;
@@ -172,8 +169,8 @@ public abstract class AbstractOfficeManager implements OfficeManager, TemporaryF
      * @param workingDir The new working directory to set.
      * @return This builder instance.
      */
-    @NonNull
-    public B workingDir(@Nullable final String workingDir) {
+
+    public B workingDir(final String workingDir) {
 
       return StringUtils.isBlank(workingDir) ? (B) this : workingDir(new File(workingDir));
     }

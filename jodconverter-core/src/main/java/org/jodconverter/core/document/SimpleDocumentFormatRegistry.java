@@ -19,62 +19,61 @@
 
 package org.jodconverter.core.document;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
+import org.jodconverter.core.util.AssertUtils;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
-import org.jodconverter.core.util.AssertUtils;
 
 /** A SimpleDocumentFormatRegistry contains a collection of document formats supported by office. */
 public class SimpleDocumentFormatRegistry implements DocumentFormatRegistry {
 
-  private final Map<String, DocumentFormat> fmtsByExtension = new HashMap<>();
-  private final Map<String, DocumentFormat> fmtsByMediaType = new HashMap<>();
+  private final Map<String, DocumentFormat> fmtsByExtension = new HashMap<String, DocumentFormat>();
+  private final Map<String, DocumentFormat> fmtsByMediaType = new HashMap<String, DocumentFormat>();
 
   /**
    * Add a new format to the registry.
    *
    * @param documentFormat The format to add.
    */
-  public void addFormat(@NonNull final DocumentFormat documentFormat) {
-
-    documentFormat.getExtensions().stream()
-        .map(s -> s.toLowerCase(Locale.ROOT))
-        .forEach(ext -> fmtsByExtension.put(ext, documentFormat));
-    fmtsByMediaType.put(documentFormat.getMediaType().toLowerCase(Locale.ROOT), documentFormat);
+  public void addFormat(final DocumentFormat documentFormat) {
+    for (String extension : documentFormat.getExtensions()) {
+      fmtsByExtension.put(extension.toLowerCase(Locale.ROOT), documentFormat);
+      fmtsByMediaType.put(documentFormat.getMediaType().toLowerCase(Locale.ROOT), documentFormat);
+    }
   }
 
-  @Nullable
   @Override
-  public DocumentFormat getFormatByExtension(@NonNull final String extension) {
+  public DocumentFormat getFormatByExtension(final String extension) {
 
     AssertUtils.notNull(extension, "extension must not be null");
     return fmtsByExtension.get(extension.toLowerCase(Locale.ROOT));
   }
 
-  @Nullable
   @Override
-  public DocumentFormat getFormatByMediaType(@NonNull final String mediaType) {
+  public DocumentFormat getFormatByMediaType(final String mediaType) {
 
     AssertUtils.notNull(mediaType, "mediaType must not be null");
     return fmtsByMediaType.get(mediaType.toLowerCase(Locale.ROOT));
   }
 
-  @NonNull
   @Override
-  public Set<@NonNull DocumentFormat> getOutputFormats(
-      @NonNull final DocumentFamily documentFamily) {
-
+  public Set<DocumentFormat> getOutputFormats(final DocumentFamily documentFamily) {
     AssertUtils.notNull(documentFamily, "documentFamily must not be null");
+
     // Use fmtsByMediaType since fmtsByExtension may contain the same
     // DocumentFormat with multiple extensions (e.g: jpg, jpeg).
-    return fmtsByMediaType.values().stream()
-        .filter(format -> format.getStoreProperties(documentFamily) != null)
-        .collect(Collectors.toSet());
+    return Sets.newHashSet(
+        Iterables.filter(
+            fmtsByMediaType.values(),
+            new Predicate<DocumentFormat>() {
+              public boolean apply(DocumentFormat input) {
+                return input.getStoreProperties(documentFamily) != null;
+              }
+            }));
   }
 }

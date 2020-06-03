@@ -19,11 +19,10 @@
 
 package org.jodconverter.local.office;
 
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.sun.star.lib.uno.helper.UnoUrl;
-import org.checkerframework.checker.nullness.qual.NonNull;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Wrapper class around an UnoUrl so we are not importing the com.sun.star.lib.uno.helper.UnoUrl
@@ -52,7 +51,7 @@ class OfficeUrl {
    * @param pipeName The pipe name.
    * @return The created UnoUrl.
    */
-  /* default */ static UnoUrl pipe(@NonNull final String pipeName) {
+  /* default */ static UnoUrl pipe(final String pipeName) {
 
     // Here we must use a try catch since OpenOffice and LibreOffice doesn't
     // have the same UnoUrl.parseUnoUrl signature
@@ -137,9 +136,11 @@ class OfficeUrl {
    * @return A map with key/value pairs for protocol parameters.
    */
   public Map<String, String> getProtocolParameters() {
-    return ((Map<?, ?>) unoUrl.getProtocolParameters())
-        .entrySet().stream()
-            .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
+    Map<String, String> map = new HashMap<String, String>(unoUrl.getProtocolParameters().size());
+    for (Map.Entry<?, ?> entry : ((Map<?, ?>) unoUrl.getProtocolParameters()).entrySet()) {
+      map.put(entry.getKey().toString(), entry.getValue().toString());
+    }
+    return map;
   }
 
   /**
@@ -149,9 +150,11 @@ class OfficeUrl {
    * @return A map with key/value pairs for connection parameters.
    */
   public Map<String, String> getConnectionParameters() {
-    return ((Map<?, ?>) unoUrl.getConnectionParameters())
-        .entrySet().stream()
-            .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
+    Map<String, String> map = new HashMap<String, String>(unoUrl.getConnectionParameters().size());
+    for (Map.Entry<?, ?> entry : ((Map<?, ?>) unoUrl.getConnectionParameters()).entrySet()) {
+      map.put(entry.getKey().toString(), entry.getValue().toString());
+    }
+    return map;
   }
 
   /**

@@ -19,29 +19,8 @@
 
 package org.jodconverter.remote.office;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.Socket;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import javax.net.ssl.SSLContext;
-
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
@@ -51,13 +30,21 @@ import org.apache.http.ssl.PrivateKeyDetails;
 import org.apache.http.ssl.PrivateKeyStrategy;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
-
 import org.jodconverter.core.office.AbstractOfficeManagerPoolEntry;
 import org.jodconverter.core.office.OfficeException;
 import org.jodconverter.core.task.OfficeTask;
 import org.jodconverter.core.util.AssertUtils;
 import org.jodconverter.core.util.StringUtils;
 import org.jodconverter.remote.ssl.SslConfig;
+
+import javax.net.ssl.SSLContext;
+import java.io.*;
+import java.net.*;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * A RemoteOfficeManagerPoolEntry is responsible to execute tasks submitted through a {@link
@@ -70,9 +57,9 @@ import org.jodconverter.remote.ssl.SslConfig;
 class RemoteOfficeManagerPoolEntry extends AbstractOfficeManagerPoolEntry {
 
   // The default connect timeout
-  private static final long DEFAULT_CONNECT_TIMEOUT = 60_000L; // 2 minutes
+  private static final long DEFAULT_CONNECT_TIMEOUT = 60000L; // 2 minutes
   // The default socket timeout
-  private static final long DEFAULT_SOCKET_TIMEOUT = 120_000L; // 2 minutes
+  private static final long DEFAULT_SOCKET_TIMEOUT = 120000L; // 2 minutes
 
   private final String connectionUrl;
   private final SslConfig sslConfig;
@@ -95,11 +82,14 @@ class RemoteOfficeManagerPoolEntry extends AbstractOfficeManagerPoolEntry {
 
     @Override
     public String chooseAlias(final Map<String, PrivateKeyDetails> aliases, final Socket socket) {
-
-      return aliases.keySet().stream()
-          .filter(key -> key.equalsIgnoreCase(keyAlias))
-          .findFirst()
-          .orElse(null);
+      return Iterables.tryFind(
+              aliases.keySet(),
+              new Predicate<String>() {
+                public boolean apply(String input) {
+                  return input.equalsIgnoreCase(keyAlias);
+                }
+              })
+          .orNull();
     }
   }
 
@@ -234,7 +224,7 @@ class RemoteOfficeManagerPoolEntry extends AbstractOfficeManagerPoolEntry {
       sslBuilder.loadKeyMaterial(
           keystore,
           sslConfig.getKeyPassword() == null
-              ? Objects.requireNonNull(sslConfig.getKeyStorePassword()).toCharArray()
+              ? sslConfig.getKeyStorePassword().toCharArray()
               : sslConfig.getKeyPassword().toCharArray(),
           sslConfig.getKeyAlias() == null ? null : new SelectByAlias(sslConfig.getKeyAlias()));
     }
@@ -262,13 +252,7 @@ class RemoteOfficeManagerPoolEntry extends AbstractOfficeManagerPoolEntry {
               ? SSLConnectionSocketFactory.getDefaultHostnameVerifier()
               : NoopHostnameVerifier.INSTANCE);
 
-    } catch (IOException
-        | KeyManagementException
-        | NoSuchAlgorithmException
-        | KeyStoreException
-        | CertificateException
-        | UnrecoverableKeyException
-        | NoSuchProviderException ex) {
+    } catch (Exception ex) {
       throw new OfficeException("Could not create SSL context.", ex);
     }
   }
@@ -296,15 +280,18 @@ class RemoteOfficeManagerPoolEntry extends AbstractOfficeManagerPoolEntry {
   protected void doExecute(final OfficeTask task) throws OfficeException {
 
     final SSLConnectionSocketFactory sslFactory = configureSsl();
-    try (CloseableHttpClient httpClient =
-        HttpClients.custom().setSSLSocketFactory(sslFactory).build()) {
+    try {
+      CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(sslFactory).build();
+      try {
+        // Use the task execution timeout as connection and socket timeout.
+        // TODO: Should the user be able to customize connection and socket timeout ?
+        final RequestConfig requestConfig =
+            new RequestConfig(buildUrl(connectionUrl), connectTimeout, socketTimeout);
+        task.execute(new RemoteOfficeConnection(httpClient, requestConfig));
 
-      // Use the task execution timeout as connection and socket timeout.
-      // TODO: Should the user be able to customize connection and socket timeout ?
-      final RequestConfig requestConfig =
-          new RequestConfig(buildUrl(connectionUrl), connectTimeout, socketTimeout);
-      task.execute(new RemoteOfficeConnection(httpClient, requestConfig));
-
+      } finally {
+        httpClient.close();
+      }
     } catch (IOException ex) {
       throw new OfficeException("Could not create the HTTP client", ex);
     }
@@ -341,8 +328,11 @@ class RemoteOfficeManagerPoolEntry extends AbstractOfficeManagerPoolEntry {
         keyStore = KeyStore.getInstance(type, storeProvider);
       }
 
-      try (InputStream instream = Files.newInputStream(getFile(store).toPath())) {
+      InputStream instream = new FileInputStream(getFile(store));
+      try {
         keyStore.load(instream, storePassword.toCharArray());
+      } finally {
+        instream.close();
       }
 
       return keyStore;

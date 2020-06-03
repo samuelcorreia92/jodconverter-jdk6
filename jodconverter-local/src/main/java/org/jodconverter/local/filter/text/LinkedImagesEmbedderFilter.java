@@ -19,8 +19,6 @@
 
 package org.jodconverter.local.filter.text;
 
-import java.util.Objects;
-
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.container.XIndexAccess;
 import com.sun.star.container.XNameContainer;
@@ -33,10 +31,6 @@ import com.sun.star.text.XTextGraphicObjectsSupplier;
 import com.sun.star.uno.Any;
 import com.sun.star.uno.AnyConverter;
 import com.sun.star.uno.XComponentContext;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jodconverter.core.office.OfficeContext;
 import org.jodconverter.local.filter.Filter;
 import org.jodconverter.local.filter.FilterChain;
@@ -45,6 +39,8 @@ import org.jodconverter.local.office.utils.Info;
 import org.jodconverter.local.office.utils.Lo;
 import org.jodconverter.local.office.utils.Props;
 import org.jodconverter.local.office.utils.Write;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** This filter is used to insert a graphics into a document. */
 public class LinkedImagesEmbedderFilter implements Filter {
@@ -57,9 +53,7 @@ public class LinkedImagesEmbedderFilter implements Filter {
 
   @Override
   public void doFilter(
-      @NonNull final OfficeContext context,
-      @NonNull final XComponent document,
-      @NonNull final FilterChain chain)
+      final OfficeContext context, final XComponent document, final FilterChain chain)
       throws Exception {
 
     LOGGER.debug("Applying the LinkedImagesEmbedderFilter");
@@ -98,10 +92,12 @@ public class LinkedImagesEmbedderFilter implements Filter {
                   AnyConverter.toObject(XGraphic.class, xPropSet.getPropertyValue("Graphic"));
           // Only ones that are not embedded
           final XPropertySet xGraphicPropSet = Lo.qi(XPropertySet.class, xGraphic);
-          final boolean linked = (boolean) xGraphicPropSet.getPropertyValue("Linked");
+          final boolean linked = (Boolean) xGraphicPropSet.getPropertyValue("Linked");
           if (linked) {
             // Since 6.1, we must use "Graphic" instead of "GraphicURL"
-            Objects.requireNonNull(graphicProvider);
+            if (graphicProvider == null) {
+              throw new NullPointerException();
+            }
             xPropSet.setPropertyValue(
                 "Graphic",
                 graphicProvider.queryGraphic(

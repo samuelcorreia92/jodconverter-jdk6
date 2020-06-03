@@ -19,20 +19,7 @@
 
 package org.jodconverter.local.office;
 
-import static org.jodconverter.local.process.ProcessManager.PID_NOT_FOUND;
-import static org.jodconverter.local.process.ProcessManager.PID_UNKNOWN;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.google.common.base.Joiner;
 import org.jodconverter.core.office.OfficeException;
 import org.jodconverter.core.office.RetryTimeoutException;
 import org.jodconverter.core.util.FileUtils;
@@ -40,6 +27,17 @@ import org.jodconverter.core.util.OSUtils;
 import org.jodconverter.local.process.LinesPumpStreamHandler;
 import org.jodconverter.local.process.ProcessManager;
 import org.jodconverter.local.process.ProcessQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.jodconverter.local.process.ProcessManager.PID_NOT_FOUND;
+import static org.jodconverter.local.process.ProcessManager.PID_UNKNOWN;
 
 /**
  * An OfficeProcess represents an instance of an office program that is executed by JODConverter.
@@ -52,7 +50,7 @@ class OfficeProcess {
 
   // TODO: Make process constants configurable
   private static final long START_PROCESS_RETRY = 500L;
-  private static final long START_PROCESS_TIMEOUT = 10_000L;
+  private static final long START_PROCESS_TIMEOUT = 10000L;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OfficeProcess.class);
 
@@ -82,19 +80,21 @@ class OfficeProcess {
    *     a new office process for the same connection string.
    */
   public OfficeProcess(
-      @NonNull final OfficeUrl officeUrl,
-      @NonNull final File officeHome,
-      @NonNull final File workingDir,
-      @NonNull final ProcessManager processManager,
-      @Nullable final List<@NonNull String> runAsArgs,
-      @Nullable final File templateProfileDir,
-      @Nullable final Boolean killExistingProcess) {
+      final OfficeUrl officeUrl,
+      final File officeHome,
+      final File workingDir,
+      final ProcessManager processManager,
+      final List<String> runAsArgs,
+      final File templateProfileDir,
+      final Boolean killExistingProcess) {
 
     this.officeUrl = officeUrl;
     this.officeHome = officeHome;
     this.processManager = processManager;
     this.runAsArgs =
-        runAsArgs == null ? Collections.emptyList() : Collections.unmodifiableList(runAsArgs);
+        runAsArgs == null
+            ? Collections.<String>emptyList()
+            : Collections.unmodifiableList(runAsArgs);
     this.templateProfileDir = templateProfileDir;
     this.killExistingProcess =
         killExistingProcess == null ? DEFAULT_KILL_EXISTING_PROCESS : killExistingProcess;
@@ -189,7 +189,7 @@ class OfficeProcess {
 
     final String prefix = descriptor.useLongOptionNameGnuStyle() ? "--" : "-";
 
-    final List<String> command = new ArrayList<>(runAsArgs);
+    final List<String> command = new ArrayList<String>(runAsArgs);
     command.add(execPath);
     command.add(prefix + "invisible");
     command.add(prefix + "help");
@@ -245,7 +245,7 @@ class OfficeProcess {
    * @return The {@link VerboseProcess}. The value {@code null} means that the process has never
    *     been started.
    */
-  @Nullable
+
   /* default */ VerboseProcess getProcess() {
     return process;
   }
@@ -308,11 +308,10 @@ class OfficeProcess {
    * @param acceptString The connection string (accept argument) of the office process.
    * @return The created ProcessBuilder.
    */
-  @NonNull
-  private ProcessBuilder prepareProcessBuilder(@NonNull final String acceptString) {
+  private ProcessBuilder prepareProcessBuilder(final String acceptString) {
 
     // Create the command used to launch the office process
-    final List<String> command = new ArrayList<>(runAsArgs);
+    final List<String> command = new ArrayList<String>(runAsArgs);
     final File executable = LocalOfficeUtils.getOfficeExecutable(officeHome);
 
     // LibreOffice:
@@ -340,7 +339,7 @@ class OfficeProcess {
     // not work with Apache OpenOffice.
 
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("ProcessBuilder command: {}", String.join(" ", command));
+      LOGGER.debug("ProcessBuilder command: {}", Joiner.on(' ').join(command));
     }
     return new ProcessBuilder(command);
   }

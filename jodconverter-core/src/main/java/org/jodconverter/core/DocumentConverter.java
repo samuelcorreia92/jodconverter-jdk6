@@ -19,14 +19,12 @@
 
 package org.jodconverter.core;
 
-import java.io.File;
-import java.io.InputStream;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import org.jodconverter.core.document.DocumentFormat;
 import org.jodconverter.core.document.DocumentFormatRegistry;
 import org.jodconverter.core.job.ConversionJobWithOptionalSourceFormatUnspecified;
+
+import java.io.File;
+import java.io.InputStream;
 
 /**
  * A DocumentConverter is responsible to execute the conversion of documents using an office
@@ -40,8 +38,7 @@ public interface DocumentConverter {
    * @param source The conversion input as a file.
    * @return The current conversion specification.
    */
-  @NonNull
-  ConversionJobWithOptionalSourceFormatUnspecified convert(@NonNull File source);
+  ConversionJobWithOptionalSourceFormatUnspecified convert(File source);
 
   /**
    * Converts a source stream input stream.
@@ -49,8 +46,7 @@ public interface DocumentConverter {
    * @param source The conversion input as an input stream.
    * @return The current conversion specification.
    */
-  @NonNull
-  ConversionJobWithOptionalSourceFormatUnspecified convert(@NonNull InputStream source);
+  ConversionJobWithOptionalSourceFormatUnspecified convert(InputStream source);
 
   /**
    * Converts a source stream input stream.
@@ -59,15 +55,12 @@ public interface DocumentConverter {
    * @param closeStream Whether the {@link InputStream} is closed after the conversion terminates.
    * @return The current conversion specification.
    */
-  @NonNull
-  ConversionJobWithOptionalSourceFormatUnspecified convert(
-      @NonNull InputStream source, boolean closeStream);
+  ConversionJobWithOptionalSourceFormatUnspecified convert(InputStream source, boolean closeStream);
 
   /**
    * Gets all the {@link DocumentFormat} supported by the converter.
    *
    * @return A {@link DocumentFormatRegistry} containing the supported formats.
    */
-  @NonNull
   DocumentFormatRegistry getFormatRegistry();
 }

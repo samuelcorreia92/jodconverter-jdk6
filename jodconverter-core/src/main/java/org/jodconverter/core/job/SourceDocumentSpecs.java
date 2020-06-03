@@ -21,8 +21,6 @@ package org.jodconverter.core.job;
 
 import java.io.File;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 /**
  * An interface that provides the behavior to apply when a source file is no longer required by a
  * conversion process.
@@ -35,7 +33,5 @@ public interface SourceDocumentSpecs extends DocumentSpecs {
    *
    * @param file The file that was consumed.
    */
-  default void onConsumed(@NonNull File file) {
-    // Default behavior is to do nothing
-  }
+  void onConsumed(File file);
 }

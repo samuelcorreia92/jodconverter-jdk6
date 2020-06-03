@@ -22,8 +22,6 @@ package org.jodconverter.core.document;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 /**
  * Holds the default {@link DocumentFormatRegistry} instance. The {@link
  * DefaultDocumentFormatRegistry} will use this holder to initialize all its {@link DocumentFormat}
@@ -39,17 +37,27 @@ class DefaultDocumentFormatRegistryInstanceHolder { // NOPMD - Disable class nam
    *
    * @return The default {@link DocumentFormatRegistry}.
    */
-  @NonNull
+
   public static DocumentFormatRegistry getInstance() {
     synchronized (DocumentFormatRegistry.class) {
       if (instance == null) {
-        try (InputStream input =
-            DefaultDocumentFormatRegistryInstanceHolder.class.getResourceAsStream(
-                "/document-formats.json")) {
+        InputStream input = null;
+        try {
+          input =
+              DefaultDocumentFormatRegistryInstanceHolder.class.getResourceAsStream(
+                  "/document-formats.json");
           instance = JsonDocumentFormatRegistry.create(input);
         } catch (IOException ex) {
           throw new DocumentFormatRegistryException(
               "Could not load the default document-formats.json configuration file", ex);
+        } finally {
+          try {
+            if (input != null) {
+              input.close();
+            }
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
         }
       }
 
@@ -62,7 +70,7 @@ class DefaultDocumentFormatRegistryInstanceHolder { // NOPMD - Disable class nam
    *
    * @param registry The default {@link DocumentFormatRegistry}.
    */
-  public static void setInstance(@NonNull final DocumentFormatRegistry registry) {
+  public static void setInstance(final DocumentFormatRegistry registry) {
     synchronized (DocumentFormatRegistry.class) {
       instance = registry;
     }

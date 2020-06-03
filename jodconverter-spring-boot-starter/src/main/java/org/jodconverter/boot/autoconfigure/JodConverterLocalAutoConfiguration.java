@@ -57,7 +57,7 @@ public class JodConverterLocalAutoConfiguration {
    *
    * @param properties The local properties.
    */
-  public JodConverterLocalAutoConfiguration(@NonNull final JodConverterLocalProperties properties) {
+  public JodConverterLocalAutoConfiguration(final JodConverterLocalProperties properties) {
     this.properties = properties;
   }
 

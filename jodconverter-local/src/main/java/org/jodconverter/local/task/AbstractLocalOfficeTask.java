@@ -19,13 +19,6 @@
 
 package org.jodconverter.local.task;
 
-import static org.jodconverter.local.office.LocalOfficeUtils.toUnoProperties;
-import static org.jodconverter.local.office.LocalOfficeUtils.toUrl;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.sun.star.frame.XComponentLoader;
 import com.sun.star.io.IOException;
 import com.sun.star.lang.IllegalArgumentException;
@@ -33,9 +26,6 @@ import com.sun.star.lang.XComponent;
 import com.sun.star.task.ErrorCodeIOException;
 import com.sun.star.util.CloseVetoException;
 import com.sun.star.util.XCloseable;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import org.jodconverter.core.job.SourceDocumentSpecs;
 import org.jodconverter.core.office.OfficeException;
 import org.jodconverter.core.task.AbstractOfficeTask;
@@ -43,6 +33,13 @@ import org.jodconverter.core.util.AssertUtils;
 import org.jodconverter.local.LocalConverter;
 import org.jodconverter.local.office.LocalOfficeContext;
 import org.jodconverter.local.office.utils.Lo;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.jodconverter.local.office.LocalOfficeUtils.toUnoProperties;
+import static org.jodconverter.local.office.LocalOfficeUtils.toUrl;
 
 /**
  * Base class for all local office tasks implementation.
@@ -55,8 +52,7 @@ public abstract class AbstractLocalOfficeTask extends AbstractOfficeTask {
   protected final Map<String, Object> loadProperties;
 
   protected static void appendProperties(
-      @NonNull final Map<@NonNull String, @NonNull Object> properties,
-      @Nullable final Map<@NonNull String, @NonNull Object> toAddProperties) {
+      final Map<String, Object> properties, final Map<String, Object> toAddProperties) {
 
     if (toAddProperties != null) {
       properties.putAll(toAddProperties);
@@ -68,7 +64,7 @@ public abstract class AbstractLocalOfficeTask extends AbstractOfficeTask {
    *
    * @param source The source specifications of the document.
    */
-  public AbstractLocalOfficeTask(@NonNull final SourceDocumentSpecs source) {
+  public AbstractLocalOfficeTask(final SourceDocumentSpecs source) {
     this(source, null);
   }
 
@@ -81,19 +77,18 @@ public abstract class AbstractLocalOfficeTask extends AbstractOfficeTask {
    *     {@code source} arguments.
    */
   public AbstractLocalOfficeTask(
-      @NonNull final SourceDocumentSpecs source,
-      @Nullable final Map<@NonNull String, @NonNull Object> loadProperties) {
+      final SourceDocumentSpecs source, final Map<String, Object> loadProperties) {
     super(source);
 
     this.loadProperties = loadProperties;
   }
 
   // Gets the office properties to apply when the input file will be loaded.
-  @NonNull
-  protected Map<@NonNull String, @NonNull Object> getLoadProperties() {
+
+  protected Map<String, Object> getLoadProperties() {
 
     final Map<String, Object> loadProps =
-        new HashMap<>(
+        new HashMap<String, Object>(
             loadProperties == null ? LocalConverter.DEFAULT_LOAD_PROPERTIES : loadProperties);
     if (source.getFormat() != null) {
       appendProperties(loadProps, source.getFormat().getLoadProperties());
@@ -103,9 +98,8 @@ public abstract class AbstractLocalOfficeTask extends AbstractOfficeTask {
   }
 
   // Loads the document from the specified source file.
-  @NonNull
-  protected XComponent loadDocument(
-      @NonNull final LocalOfficeContext context, @NonNull final File sourceFile)
+
+  protected XComponent loadDocument(final LocalOfficeContext context, final File sourceFile)
       throws OfficeException {
 
     final XComponentLoader loader = context.getComponentLoader();
@@ -124,19 +118,21 @@ public abstract class AbstractLocalOfficeTask extends AbstractOfficeTask {
       throw new OfficeException(
           ERROR_MESSAGE_LOAD + sourceFile.getName() + "; errorCode: " + exception.ErrCode,
           exception);
-    } catch (IllegalArgumentException | IOException exception) {
+    } catch (IllegalArgumentException exception) {
+      throw new OfficeException(ERROR_MESSAGE_LOAD + sourceFile.getName(), exception);
+    } catch (IOException exception) {
       throw new OfficeException(ERROR_MESSAGE_LOAD + sourceFile.getName(), exception);
     }
   }
 
   // Closes the specified document.
-  protected void closeDocument(@Nullable final XComponent document) {
+  protected void closeDocument(final XComponent document) {
 
     if (document != null) {
 
       // Closing the converted document. Use XCloseable.close if the
       // interface is supported, otherwise use XComponent.dispose
-      final XCloseable closeable = Lo.qiOptional(XCloseable.class, document).orElse(null);
+      final XCloseable closeable = Lo.qiOptional(XCloseable.class, document).orNull();
       if (closeable == null) {
         // If close is not supported by this model - try to dispose it.
         Lo.qi(XComponent.class, document).dispose();
@@ -154,7 +150,6 @@ public abstract class AbstractLocalOfficeTask extends AbstractOfficeTask {
     }
   }
 
-  @NonNull
   @Override
   public String toString() {
     return getClass().getSimpleName()

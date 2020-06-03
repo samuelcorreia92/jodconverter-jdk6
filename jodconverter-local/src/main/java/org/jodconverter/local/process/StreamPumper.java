@@ -24,9 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.charset.Charset;
-import java.util.Objects;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 /** Read all lines from an input stream. */
 public class StreamPumper extends Thread {
@@ -35,7 +32,6 @@ public class StreamPumper extends Thread {
   private final LineConsumer consumer;
 
   /** Provides a function to consume a line read from a stream. */
-  @FunctionalInterface
   public interface LineConsumer {
 
     /**
@@ -43,7 +39,7 @@ public class StreamPumper extends Thread {
      *
      * @param line The line to consume.
      */
-    void consume(@NonNull String line);
+    void consume(String line);
   }
 
   /**
@@ -52,11 +48,15 @@ public class StreamPumper extends Thread {
    * @param stream The input stream to read from.
    * @param consumer The consumer of lines read from the input stream.
    */
-  public StreamPumper(@NonNull final InputStream stream, @NonNull final LineConsumer consumer) {
+  public StreamPumper(final InputStream stream, final LineConsumer consumer) {
     super();
 
-    Objects.requireNonNull(stream, "stream must not be null");
-    Objects.requireNonNull(stream, "consumer must not be null");
+    if (stream == null) {
+      throw new NullPointerException("stream must not be null");
+    }
+    if (consumer == null) {
+      throw new NullPointerException("consumer must not be null");
+    }
 
     this.stream = stream;
     this.consumer = consumer;
@@ -68,23 +68,32 @@ public class StreamPumper extends Thread {
    *
    * @return The consumer.
    */
-  @NonNull
   public LineConsumer getConsumer() {
     return consumer;
   }
 
   @Override
   public void run() {
+    BufferedReader bufferedReader = null;
+    try {
+      bufferedReader =
+          new BufferedReader(
+              Channels.newReader(Channels.newChannel(stream), Charset.defaultCharset().name()));
 
-    try (BufferedReader bufferedReader =
-        new BufferedReader(
-            Channels.newReader(Channels.newChannel(stream), Charset.defaultCharset().name()))) {
       String line;
       while ((line = bufferedReader.readLine()) != null) {
         consumer.consume(line);
       }
     } catch (IOException ignored) {
       // ignored
+    } finally {
+      if (bufferedReader != null) {
+        try {
+          bufferedReader.close();
+        } catch (IOException e) {
+          // ignored
+        }
+      }
     }
   }
 }

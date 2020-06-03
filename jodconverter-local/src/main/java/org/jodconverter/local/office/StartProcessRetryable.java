@@ -19,26 +19,24 @@
 
 package org.jodconverter.local.office;
 
-import static org.jodconverter.local.process.ProcessManager.PID_UNKNOWN;
-
-import java.io.IOException;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jodconverter.core.office.AbstractRetryable;
 import org.jodconverter.core.office.OfficeException;
 import org.jodconverter.core.office.TemporaryException;
 import org.jodconverter.core.util.OSUtils;
 import org.jodconverter.local.process.ProcessManager;
 import org.jodconverter.local.process.ProcessQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+
+import static org.jodconverter.local.process.ProcessManager.PID_UNKNOWN;
 
 /** Performs a starts of an office process. */
 public class StartProcessRetryable extends AbstractRetryable<Exception> {
 
   private static final int FIND_PID_RETRIES = 10;
-  private static final long FIND_PID_DELAY = 2_000L;
+  private static final long FIND_PID_DELAY = 2000L;
   private static final long FIND_PID_INTERVAL = 250L;
   private static final Integer EXIT_CODE_81 = 81;
   private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessRetryable.class);
@@ -58,9 +56,9 @@ public class StartProcessRetryable extends AbstractRetryable<Exception> {
    * @param processQuery The process query.
    */
   public StartProcessRetryable(
-      @NonNull final ProcessManager processManager,
-      @NonNull final ProcessBuilder processBuilder,
-      @NonNull final ProcessQuery processQuery) {
+      final ProcessManager processManager,
+      final ProcessBuilder processBuilder,
+      final ProcessQuery processQuery) {
     super();
 
     this.processManager = processManager;
@@ -123,7 +121,6 @@ public class StartProcessRetryable extends AbstractRetryable<Exception> {
    *
    * @return The started process.
    */
-  @NonNull
   public VerboseProcess getProcess() {
     return process;
   }

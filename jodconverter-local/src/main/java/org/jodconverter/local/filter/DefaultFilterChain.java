@@ -20,9 +20,6 @@
 package org.jodconverter.local.filter;
 
 import com.sun.star.lang.XComponent;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import org.jodconverter.core.office.OfficeContext;
 import org.jodconverter.core.office.OfficeException;
 
@@ -70,20 +67,20 @@ public class DefaultFilterChain extends AbstractFilterChain {
    * @param filters The filters to add to the chain.
    */
   public DefaultFilterChain(
-      final boolean endsWithRefreshFilter, @Nullable final Filter... filters) {
+      final boolean endsWithRefreshFilter, final Filter... filters) {
     super(filters);
 
     this.endsWithRefreshFilter = endsWithRefreshFilter;
   }
 
-  @NonNull
+
   @Override
   public FilterChain copy() {
     return new DefaultFilterChain(endsWithRefreshFilter, filters.toArray(new Filter[0]));
   }
 
   @Override
-  public void doFilter(@NonNull final OfficeContext context, @NonNull final XComponent document)
+  public void doFilter(final OfficeContext context, final XComponent document)
       throws OfficeException {
 
     // Call the RefreshFilter if we are at the end of the chain

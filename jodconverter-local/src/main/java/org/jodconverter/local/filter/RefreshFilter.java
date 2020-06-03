@@ -21,12 +21,10 @@ package org.jodconverter.local.filter;
 
 import com.sun.star.lang.XComponent;
 import com.sun.star.util.XRefreshable;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jodconverter.core.office.OfficeContext;
 import org.jodconverter.local.office.utils.Lo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** This filter is used to refresh a document. */
 public class RefreshFilter implements Filter {
@@ -72,13 +70,14 @@ public class RefreshFilter implements Filter {
 
   @Override
   public void doFilter(
-      @NonNull final OfficeContext context,
-      @NonNull final XComponent document,
-      @NonNull final FilterChain chain)
+      final OfficeContext context, final XComponent document, final FilterChain chain)
       throws Exception {
 
     LOGGER.debug("Applying the RefreshFilter");
-    Lo.qiOptional(XRefreshable.class, document).ifPresent(XRefreshable::refresh);
+    XRefreshable xRefreshable = Lo.qiOptional(XRefreshable.class, document).orNull();
+    if (xRefreshable != null) {
+      xRefreshable.refresh();
+    }
 
     if (!lastFilter) {
       chain.doFilter(context, document);

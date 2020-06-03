@@ -109,7 +109,7 @@ public class JodConverterBean implements InitializingBean, DisposableBean {
    *
    * @return The converter created by this bean.
    */
-  @NonNull
+  
   public DocumentConverter getConverter() {
 
     return documentConverter;
@@ -152,7 +152,7 @@ public class JodConverterBean implements InitializingBean, DisposableBean {
    * @param killExistingProcess {@code true} to kill existing process when a new process must be
    *     created with the same connection string, {@code false} otherwise.
    */
-  public void setKillExistingProcess(@Nullable final Boolean killExistingProcess) {
+  public void setKillExistingProcess(final Boolean killExistingProcess) {
     this.killExistingProcess = killExistingProcess;
   }
 
@@ -161,7 +161,7 @@ public class JodConverterBean implements InitializingBean, DisposableBean {
    *
    * @param maxTasksPerProcess the new value to set.
    */
-  public void setMaxTasksPerProcess(@Nullable final Integer maxTasksPerProcess) {
+  public void setMaxTasksPerProcess(final Integer maxTasksPerProcess) {
     this.maxTasksPerProcess = maxTasksPerProcess;
   }
 
@@ -170,7 +170,7 @@ public class JodConverterBean implements InitializingBean, DisposableBean {
    *
    * @param officeHome the new home directory to set.
    */
-  public void setOfficeHome(@Nullable final String officeHome) {
+  public void setOfficeHome(final String officeHome) {
     this.officeHome = officeHome;
   }
 
@@ -181,7 +181,7 @@ public class JodConverterBean implements InitializingBean, DisposableBean {
    *
    * @param portNumbers the port numbers to use.
    */
-  public void setPortNumbers(@Nullable final String portNumbers) {
+  public void setPortNumbers(final String portNumbers) {
     this.portNumbers = portNumbers;
   }
 
@@ -193,7 +193,7 @@ public class JodConverterBean implements InitializingBean, DisposableBean {
    *
    * @param processRetryInterval the retry interval, in milliseconds.
    */
-  public void setProcessRetryInterval(@Nullable final Long processRetryInterval) {
+  public void setProcessRetryInterval(final Long processRetryInterval) {
     this.processRetryInterval = processRetryInterval;
   }
 
@@ -205,7 +205,7 @@ public class JodConverterBean implements InitializingBean, DisposableBean {
    *
    * @param processTimeout the process timeout, in milliseconds.
    */
-  public void setProcessTimeout(@Nullable final Long processTimeout) {
+  public void setProcessTimeout(final Long processTimeout) {
     this.processTimeout = processTimeout;
   }
 
@@ -217,7 +217,7 @@ public class JodConverterBean implements InitializingBean, DisposableBean {
    *
    * @param taskExecutionTimeout The task execution timeout, in milliseconds.
    */
-  public void setTaskExecutionTimeout(@Nullable final Long taskExecutionTimeout) {
+  public void setTaskExecutionTimeout(final Long taskExecutionTimeout) {
     this.taskExecutionTimeout = taskExecutionTimeout;
   }
 
@@ -229,7 +229,7 @@ public class JodConverterBean implements InitializingBean, DisposableBean {
    *
    * @param taskQueueTimeout The task queue timeout, in milliseconds.
    */
-  public void setTaskQueueTimeout(@Nullable final Long taskQueueTimeout) {
+  public void setTaskQueueTimeout(final Long taskQueueTimeout) {
     this.taskQueueTimeout = taskQueueTimeout;
   }
 
@@ -238,7 +238,7 @@ public class JodConverterBean implements InitializingBean, DisposableBean {
    *
    * @param templateProfileDir The new template profile directory.
    */
-  public void setTemplateProfileDir(@Nullable final String templateProfileDir) {
+  public void setTemplateProfileDir(final String templateProfileDir) {
     this.templateProfileDir = templateProfileDir;
   }
 
@@ -251,7 +251,7 @@ public class JodConverterBean implements InitializingBean, DisposableBean {
    *
    * @param workingDir The new working directory to set.
    */
-  public void setWorkingDir(@Nullable final String workingDir) {
+  public void setWorkingDir(final String workingDir) {
     this.workingDir = workingDir;
   }
 }

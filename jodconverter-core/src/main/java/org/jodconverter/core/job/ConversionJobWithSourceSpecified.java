@@ -22,8 +22,6 @@ package org.jodconverter.core.job;
 import java.io.File;
 import java.io.OutputStream;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 /** A conversion job with a specified source for the conversion. */
 public interface ConversionJobWithSourceSpecified {
 
@@ -35,8 +33,8 @@ public interface ConversionJobWithSourceSpecified {
    *     writable, an exception will be thrown.
    * @return The current conversion specification.
    */
-  @NonNull
-  ConversionJobWithOptionalTargetFormatUnspecified to(@NonNull File target);
+
+  ConversionJobWithOptionalTargetFormatUnspecified to(File target);
 
   /**
    * Configures the current conversion to write the result to the specified {@link OutputStream}.
@@ -45,8 +43,8 @@ public interface ConversionJobWithSourceSpecified {
    * @param target The output stream to which the conversion result is written to.
    * @return The current conversion specification.
    */
-  @NonNull
-  ConversionJobWithRequiredTargetFormatUnspecified to(@NonNull OutputStream target);
+
+  ConversionJobWithRequiredTargetFormatUnspecified to(OutputStream target);
 
   /**
    * Configures the current conversion to write the result to the specified {@link OutputStream}.
@@ -56,7 +54,7 @@ public interface ConversionJobWithSourceSpecified {
    * @param closeStream Determines whether the output stream is closed after writing the result.
    * @return The current conversion specification.
    */
-  @NonNull
+
   ConversionJobWithRequiredTargetFormatUnspecified to(
-      @NonNull OutputStream target, boolean closeStream);
+      OutputStream target, boolean closeStream);
 }

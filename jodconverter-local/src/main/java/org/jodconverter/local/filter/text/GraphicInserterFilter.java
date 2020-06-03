@@ -19,17 +19,6 @@
 
 package org.jodconverter.local.filter.text;
 
-import java.awt.Dimension;
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.container.XNameContainer;
 import com.sun.star.drawing.XShape;
@@ -41,10 +30,6 @@ import com.sun.star.text.XTextContent;
 import com.sun.star.text.XTextCursor;
 import com.sun.star.text.XTextDocument;
 import com.sun.star.uno.XComponentContext;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jodconverter.core.office.OfficeContext;
 import org.jodconverter.core.office.OfficeException;
 import org.jodconverter.local.filter.FilterChain;
@@ -54,6 +39,18 @@ import org.jodconverter.local.office.utils.Info;
 import org.jodconverter.local.office.utils.Lo;
 import org.jodconverter.local.office.utils.Props;
 import org.jodconverter.local.office.utils.Write;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
 
 /** This filter is used to insert a graphics into a document. */
 public class GraphicInserterFilter extends AbstractTextContentInserterFilter {
@@ -71,7 +68,9 @@ public class GraphicInserterFilter extends AbstractTextContentInserterFilter {
   private static Dimension getImageSize(final File image) throws OfficeException {
 
     try {
-      try (ImageInputStream inputStream = ImageIO.createImageInputStream(image)) {
+      ImageInputStream inputStream = null;
+      try {
+        inputStream = ImageIO.createImageInputStream(image);
         final Iterator<ImageReader> readers = ImageIO.getImageReaders(inputStream);
         if (readers.hasNext()) {
           final ImageReader reader = readers.next();
@@ -87,6 +86,10 @@ public class GraphicInserterFilter extends AbstractTextContentInserterFilter {
         } else {
           throw new OfficeException("Could not detect the image size: No reader found");
         }
+      } finally {
+        if (inputStream != null) {
+          inputStream.close();
+        }
       }
     } catch (IOException ioEx) {
       throw new OfficeException("Could not detect the image size", ioEx);
@@ -98,7 +101,7 @@ public class GraphicInserterFilter extends AbstractTextContentInserterFilter {
 
     // 1 mm = 3.7795275590551 pixel (X)
     // 1 pixel (X) = 0.26458333333333 mm
-    return Math.round(pixels * 0.264_583_333_333_33f);
+    return Math.round(pixels * 0.26458333333333f);
   }
 
   /**
@@ -113,7 +116,7 @@ public class GraphicInserterFilter extends AbstractTextContentInserterFilter {
    * @throws OfficeException If the size of the image cannot be detected.
    */
   public GraphicInserterFilter(
-      @NonNull final String imagePath, final int horizontalPosition, final int verticalPosition)
+      final String imagePath, final int horizontalPosition, final int verticalPosition)
       throws OfficeException {
     super(getImageSize(new File(imagePath)), horizontalPosition, verticalPosition);
 
@@ -135,7 +138,7 @@ public class GraphicInserterFilter extends AbstractTextContentInserterFilter {
    *     (millimeters).
    */
   public GraphicInserterFilter(
-      @NonNull final String imagePath,
+      final String imagePath,
       final int width,
       final int height,
       final int horizontalPosition,
@@ -159,10 +162,10 @@ public class GraphicInserterFilter extends AbstractTextContentInserterFilter {
    *     href="https://wiki.openoffice.org/wiki/Documentation/DevGuide/Text/Drawing_Shapes">Drawing_Shapes</a>
    */
   public GraphicInserterFilter(
-      @NonNull final String imagePath,
+      final String imagePath,
       final int width,
       final int height,
-      final @NonNull Map<@NonNull String, @NonNull Object> shapeProperties) {
+      final Map<String, Object> shapeProperties) {
     super(new Dimension(width, height), shapeProperties);
 
     this.imagePath = imagePath;
@@ -178,9 +181,7 @@ public class GraphicInserterFilter extends AbstractTextContentInserterFilter {
    * @see <a
    *     href="https://wiki.openoffice.org/wiki/Documentation/DevGuide/Text/Drawing_Shapes">Drawing_Shapes</a>
    */
-  public GraphicInserterFilter(
-      @NonNull final String imagePath,
-      @NonNull final Map<@NonNull String, @NonNull Object> shapeProperties)
+  public GraphicInserterFilter(final String imagePath, final Map<String, Object> shapeProperties)
       throws OfficeException {
     super(getImageSize(new File(imagePath)), shapeProperties);
 
@@ -189,9 +190,7 @@ public class GraphicInserterFilter extends AbstractTextContentInserterFilter {
 
   @Override
   public void doFilter(
-      @NonNull final OfficeContext context,
-      @NonNull final XComponent document,
-      @NonNull final FilterChain chain)
+      final OfficeContext context, final XComponent document, final FilterChain chain)
       throws Exception {
 
     LOGGER.debug("Applying the GraphicInserterFilter");
@@ -235,7 +234,9 @@ public class GraphicInserterFilter extends AbstractTextContentInserterFilter {
       final XGraphicProvider graphicProvider =
           Lo.createInstanceMCF(
               context, XGraphicProvider.class, "com.sun.star.graphic.GraphicProvider");
-      Objects.requireNonNull(graphicProvider);
+      if (graphicProvider == null) {
+        throw new NullPointerException();
+      }
 
       // Since 6.1, we must use "Graphic" instead of "GraphicURL"
       propSet.setPropertyValue(
@@ -263,7 +264,9 @@ public class GraphicInserterFilter extends AbstractTextContentInserterFilter {
 
     // Querying for the interface XTextDocument (text interface) on the XComponent
     final XTextDocument docText = Write.getTextDoc(document);
-    Objects.requireNonNull(docText);
+    if (docText == null) {
+      throw new NullPointerException();
+    }
 
     // Getting text field interface
     final XText text = docText.getText();

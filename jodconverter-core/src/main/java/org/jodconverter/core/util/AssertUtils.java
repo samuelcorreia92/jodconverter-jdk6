@@ -21,9 +21,6 @@ package org.jodconverter.core.util;
 
 import java.util.Collection;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 /** Contains assertions helper functions. */
 @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
 public final class AssertUtils {
@@ -35,7 +32,7 @@ public final class AssertUtils {
    * @param message The exception message to use if the assertion fails.
    * @throws IllegalArgumentException If expression is {@code false}.
    */
-  public static void isTrue(final boolean expression, @NonNull final String message) {
+  public static void isTrue(final boolean expression, final String message) {
     if (!expression) {
       throw new IllegalArgumentException(message);
     }
@@ -50,7 +47,7 @@ public final class AssertUtils {
    * @throws NullPointerException If the string is {@code null}
    * @throws IllegalArgumentException If the string is blank.
    */
-  public static void notBlank(@Nullable final String str, @NonNull final String message) {
+  public static void notBlank(final String str, final String message) {
     if (str == null) {
       throw new NullPointerException(message);
     }
@@ -75,7 +72,7 @@ public final class AssertUtils {
    * @throws IllegalArgumentException If the collection is empty.
    */
   public static <T> void notEmpty(
-      @Nullable final Collection<T> collection, @NonNull final String message) {
+      final Collection<T> collection, final String message) {
     if (collection == null) {
       throw new NullPointerException(message);
     }
@@ -93,7 +90,7 @@ public final class AssertUtils {
    * @throws NullPointerException If the array is {@code null}
    * @throws IllegalArgumentException If the array is empty.
    */
-  public static <T> void notEmpty(@Nullable final T[] array, @NonNull final String message) {
+  public static <T> void notEmpty(final T[] array, final String message) {
     if (array == null) {
       throw new NullPointerException(message);
     }
@@ -110,7 +107,7 @@ public final class AssertUtils {
    * @throws NullPointerException If the string is {@code null}
    * @throws IllegalArgumentException If the string is empty.
    */
-  public static void notEmpty(@Nullable final String str, @NonNull final String message) {
+  public static void notEmpty(final String str, final String message) {
     if (str == null) {
       throw new NullPointerException(message);
     }
@@ -126,7 +123,7 @@ public final class AssertUtils {
    * @param message The exception message to use if the assertion fails.
    * @throws NullPointerException If the object is {@code null}.
    */
-  public static void notNull(@Nullable final Object object, @NonNull final String message) {
+  public static void notNull(final Object object, final String message) {
     if (object == null) {
       throw new NullPointerException(message);
     }

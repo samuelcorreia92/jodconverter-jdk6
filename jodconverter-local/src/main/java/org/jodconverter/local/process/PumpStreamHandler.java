@@ -19,8 +19,6 @@
 
 package org.jodconverter.local.process;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 /** Copies standard output and error of sub-processes to given stream pumpers. */
 public class PumpStreamHandler {
 
@@ -34,7 +32,7 @@ public class PumpStreamHandler {
    * @param errorPumper the error {@code StreamPumper}.
    */
   public PumpStreamHandler(
-      @NonNull final StreamPumper outputPumper, @NonNull final StreamPumper errorPumper) {
+      final StreamPumper outputPumper, final StreamPumper errorPumper) {
     this.outputPumper = outputPumper;
     this.errorPumper = errorPumper;
   }
@@ -44,7 +42,7 @@ public class PumpStreamHandler {
    *
    * @return The output pumper.
    */
-  @NonNull
+
   public StreamPumper getOutputPumper() {
     return outputPumper;
   }
@@ -54,7 +52,7 @@ public class PumpStreamHandler {
    *
    * @return The error pumper.
    */
-  @NonNull
+
   public StreamPumper getErrorPumper() {
     return errorPumper;
   }

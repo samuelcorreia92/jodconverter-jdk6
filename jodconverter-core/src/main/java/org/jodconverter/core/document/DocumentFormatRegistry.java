@@ -21,9 +21,6 @@ package org.jodconverter.core.document;
 
 import java.util.Set;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 /**
  * A class implementing this interface should keep a collection of document format supported by
  * office.
@@ -37,8 +34,7 @@ public interface DocumentFormatRegistry {
    * @return The found document format, or {@code null} if no document format exists for the
    *     specified extension.
    */
-  @Nullable
-  DocumentFormat getFormatByExtension(@NonNull String extension);
+  DocumentFormat getFormatByExtension(String extension);
 
   /**
    * Gets a document format for the specified media type.
@@ -47,8 +43,7 @@ public interface DocumentFormatRegistry {
    * @return The found document format, or {@code null} if no document format exists for the
    *     specified media type.
    */
-  @Nullable
-  DocumentFormat getFormatByMediaType(@NonNull String mediaType);
+  DocumentFormat getFormatByMediaType(String mediaType);
 
   /**
    * Gets all the {@link DocumentFormat}s of a given family.
@@ -56,6 +51,5 @@ public interface DocumentFormatRegistry {
    * @param family The family whose document formats will be returned.
    * @return A set with all the document formats for the specified family.
    */
-  @NonNull
-  Set<@NonNull DocumentFormat> getOutputFormats(@NonNull DocumentFamily family);
+  Set<DocumentFormat> getOutputFormats(DocumentFamily family);
 }

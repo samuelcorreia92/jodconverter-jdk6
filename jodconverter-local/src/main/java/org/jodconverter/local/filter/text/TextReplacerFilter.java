@@ -19,15 +19,9 @@
 
 package org.jodconverter.local.filter.text;
 
-import java.util.Arrays;
-
 import com.sun.star.lang.XComponent;
 import com.sun.star.util.XReplaceDescriptor;
 import com.sun.star.util.XReplaceable;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jodconverter.core.office.OfficeContext;
 import org.jodconverter.core.office.OfficeException;
 import org.jodconverter.core.util.AssertUtils;
@@ -35,6 +29,10 @@ import org.jodconverter.local.filter.Filter;
 import org.jodconverter.local.filter.FilterChain;
 import org.jodconverter.local.office.utils.Lo;
 import org.jodconverter.local.office.utils.Write;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 /** This filter is used to replace text in a document. */
 public class TextReplacerFilter implements Filter {
@@ -54,7 +52,7 @@ public class TextReplacerFilter implements Filter {
    * @param replacementList The Strings to replace them with, no-op if null.
    */
   public TextReplacerFilter(
-      @NonNull final String[] searchList, @NonNull final String[] replacementList) {
+      final String[] searchList, final String[] replacementList) {
     super();
 
     // Both arrays are required and cannot be empty
@@ -77,9 +75,9 @@ public class TextReplacerFilter implements Filter {
 
   @Override
   public void doFilter(
-      @NonNull final OfficeContext context,
-      @NonNull final XComponent document,
-      @NonNull final FilterChain chain)
+      final OfficeContext context,
+      final XComponent document,
+      final FilterChain chain)
       throws OfficeException {
 
     LOGGER.debug("Applying the TextReplacerFilter");
@@ -93,7 +91,7 @@ public class TextReplacerFilter implements Filter {
     chain.doFilter(context, document);
   }
 
-  private void replaceText(@NonNull final XComponent document) {
+  private void replaceText(final XComponent document) {
 
     final XReplaceable replaceable = Lo.qi(XReplaceable.class, document);
 

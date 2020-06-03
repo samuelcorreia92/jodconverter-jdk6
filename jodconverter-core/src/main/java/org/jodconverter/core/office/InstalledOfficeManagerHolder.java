@@ -19,8 +19,6 @@
 
 package org.jodconverter.core.office;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 /**
  * Holds a unique instance of an {@link org.jodconverter.core.office.OfficeManager} that will be
  * used by created {@link org.jodconverter.core.DocumentConverter} when no office manager are given
@@ -36,7 +34,7 @@ class InstalledOfficeManagerHolder { // NOPMD - Disable utility class name rule 
    *
    * @return The main default office manager.
    */
-  @Nullable
+
   public static OfficeManager getInstance() {
 
     synchronized (InstalledOfficeManagerHolder.class) {
@@ -51,8 +49,8 @@ class InstalledOfficeManagerHolder { // NOPMD - Disable utility class name rule 
    * @return the previous installed office manager, or {@code null} if there was no installed office
    *     manager.
    */
-  @Nullable
-  public static OfficeManager setInstance(@Nullable final OfficeManager manager) {
+
+  public static OfficeManager setInstance(final OfficeManager manager) {
 
     synchronized (InstalledOfficeManagerHolder.class) {
       final OfficeManager oldManager = instance;

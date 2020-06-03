@@ -21,8 +21,6 @@ package org.jodconverter.local.process;
 
 import java.io.InputStream;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 /** Copies standard output and error of sub-processes to list of lines. */
 public class LinesPumpStreamHandler extends PumpStreamHandler {
 
@@ -33,17 +31,17 @@ public class LinesPumpStreamHandler extends PumpStreamHandler {
    * @param error The stream for errors.
    */
   public LinesPumpStreamHandler(
-      @NonNull final InputStream output, @NonNull final InputStream error) {
+      final InputStream output, final InputStream error) {
     super(new LinesStreamPumper(output), new LinesStreamPumper(error));
   }
 
-  @NonNull
+
   @Override
   public LinesStreamPumper getOutputPumper() {
     return (LinesStreamPumper) super.getOutputPumper();
   }
 
-  @NonNull
+
   @Override
   public LinesStreamPumper getErrorPumper() {
     return (LinesStreamPumper) super.getErrorPumper();

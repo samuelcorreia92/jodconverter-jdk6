@@ -19,20 +19,18 @@
 
 package org.jodconverter.local.office;
 
+import org.jodconverter.core.office.AbstractOfficeManagerPoolEntry;
+import org.jodconverter.core.office.OfficeException;
+import org.jodconverter.core.task.OfficeTask;
+import org.jodconverter.local.process.ProcessManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.jodconverter.core.office.AbstractOfficeManagerPoolEntry;
-import org.jodconverter.core.office.OfficeException;
-import org.jodconverter.core.task.OfficeTask;
-import org.jodconverter.local.process.ProcessManager;
 
 /**
  * An {@link OfficeProcessManagerPoolEntry} is responsible to execute tasks submitted through a
@@ -157,7 +155,7 @@ class OfficeProcessManagerPoolEntry extends AbstractOfficeManagerPoolEntry {
   }
 
   @Override
-  public void doExecute(@NonNull final OfficeTask task) throws OfficeException {
+  public void doExecute(final OfficeTask task) throws OfficeException {
 
     // Execute the task.
     task.execute(officeProcessManager.getConnection());
@@ -175,7 +173,7 @@ class OfficeProcessManagerPoolEntry extends AbstractOfficeManagerPoolEntry {
   }
 
   @Override
-  protected void handleExecuteTimeoutException(@NonNull final TimeoutException timeoutEx) {
+  protected void handleExecuteTimeoutException(final TimeoutException timeoutEx) {
 
     // Is the the task did not complete within the configured timeout, we must restart
     officeProcessManager.restartDueToTaskTimeout();

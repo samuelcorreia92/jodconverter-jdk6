@@ -19,10 +19,6 @@
 
 package org.jodconverter.local.filter.text;
 
-import java.awt.Dimension;
-import java.util.Map;
-import java.util.Objects;
-
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.drawing.XShape;
 import com.sun.star.lang.XComponent;
@@ -30,15 +26,17 @@ import com.sun.star.text.XText;
 import com.sun.star.text.XTextCursor;
 import com.sun.star.text.XTextDocument;
 import com.sun.star.text.XTextFrame;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jodconverter.core.office.OfficeContext;
 import org.jodconverter.core.util.AssertUtils;
 import org.jodconverter.local.filter.FilterChain;
 import org.jodconverter.local.office.utils.Lo;
 import org.jodconverter.local.office.utils.Write;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.awt.*;
+import java.util.Map;
+import java.util.Objects;
 
 /** This filter is used to insert text into a document. */
 public class TextInserterFilter extends AbstractTextContentInserterFilter {
@@ -64,7 +62,7 @@ public class TextInserterFilter extends AbstractTextContentInserterFilter {
    *     (millimeters).
    */
   public TextInserterFilter(
-      @NonNull final String text,
+      final String text,
       final int width,
       final int height,
       final int horizontalPosition,
@@ -90,10 +88,10 @@ public class TextInserterFilter extends AbstractTextContentInserterFilter {
    *     href="https://wiki.openoffice.org/wiki/Documentation/DevGuide/Text/Drawing_Shapes">Drawing_Shapes</a>
    */
   public TextInserterFilter(
-      @NonNull final String text,
+      final String text,
       final int width,
       final int height,
-      final @NonNull Map<@NonNull String, @NonNull Object> shapeProperties) {
+      final Map<String, Object> shapeProperties) {
     super(new Dimension(width, height), shapeProperties);
 
     AssertUtils.notBlank(text, "text must not be null nor blank");
@@ -103,9 +101,9 @@ public class TextInserterFilter extends AbstractTextContentInserterFilter {
 
   @Override
   public void doFilter(
-      @NonNull final OfficeContext context,
-      @NonNull final XComponent document,
-      @NonNull final FilterChain chain)
+      final OfficeContext context,
+      final XComponent document,
+      final FilterChain chain)
       throws Exception {
 
     LOGGER.debug("Applying the TextInserterFilter");

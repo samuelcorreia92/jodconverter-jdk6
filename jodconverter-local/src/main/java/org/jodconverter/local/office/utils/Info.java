@@ -19,20 +19,19 @@
 
 package org.jodconverter.local.office.utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import com.google.common.base.Joiner;
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.lang.XComponent;
 import com.sun.star.lang.XMultiServiceFactory;
 import com.sun.star.lang.XServiceInfo;
 import com.sun.star.uno.Exception;
 import com.sun.star.uno.XComponentContext;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A collection of utility functions to make Office info easier to get.
@@ -59,7 +58,7 @@ public final class Info { // NOPMD - Disable utility class name rule violation
    * @throws WrappedUnoException If an UNO exception occurs. The UNO exception will be the cause of
    *     the {@link WrappedUnoException}.
    */
-  public static boolean isOpenOffice(@NonNull final XComponentContext context) {
+  public static boolean isOpenOffice(final XComponentContext context) {
     return "openoffice".equalsIgnoreCase(getOfficeName(context));
   }
 
@@ -72,7 +71,7 @@ public final class Info { // NOPMD - Disable utility class name rule violation
    * @throws WrappedUnoException If an UNO exception occurs. The UNO exception will be the cause of
    *     the {@link WrappedUnoException}.
    */
-  public static boolean isLibreOffice(@NonNull final XComponentContext context) {
+  public static boolean isLibreOffice(final XComponentContext context) {
     return "libreoffice".equalsIgnoreCase(getOfficeName(context));
   }
 
@@ -84,8 +83,7 @@ public final class Info { // NOPMD - Disable utility class name rule violation
    * @throws WrappedUnoException If an UNO exception occurs. The UNO exception will be the cause of
    *     the {@link WrappedUnoException}.
    */
-  @Nullable
-  public static String getOfficeName(@NonNull final XComponentContext context) {
+  public static String getOfficeName(final XComponentContext context) {
     return getConfig(context, "ooName");
   }
 
@@ -97,8 +95,7 @@ public final class Info { // NOPMD - Disable utility class name rule violation
    * @throws WrappedUnoException If an UNO exception occurs. The UNO exception will be the cause of
    *     the {@link WrappedUnoException}.
    */
-  @Nullable
-  public static String getOfficeVersionLong(@NonNull final XComponentContext context) {
+  public static String getOfficeVersionLong(final XComponentContext context) {
     return getConfig(context, "ooSetupVersionAboutBox");
   }
 
@@ -110,8 +107,7 @@ public final class Info { // NOPMD - Disable utility class name rule violation
    * @throws WrappedUnoException If an UNO exception occurs. The UNO exception will be the cause of
    *     the {@link WrappedUnoException}.
    */
-  @Nullable
-  public static String getOfficeVersionShort(@NonNull final XComponentContext context) {
+  public static String getOfficeVersionShort(final XComponentContext context) {
     return getConfig(context, "ooSetupVersion");
   }
 
@@ -124,7 +120,7 @@ public final class Info { // NOPMD - Disable utility class name rule violation
    * @return -1 if version1 &lt; version2, 1 if version1 &gt; version2, 0 if version1 = version2.
    */
   public static int compareVersions(
-      @Nullable final String version1, @Nullable final String version2, final int length) {
+      final String version1, final String version2, final int length) {
 
     if (version1 == null && version2 == null) {
       return 0;
@@ -151,15 +147,14 @@ public final class Info { // NOPMD - Disable utility class name rule violation
   /**
    * Normalizes a version string so that it has 'length' number of version numbers separated by '.'
    */
-  @NonNull
-  private static String normalizeVersion(@NonNull final String version, final int length) {
+  private static String normalizeVersion(final String version, final int length) {
 
-    final List<String> numbers = new ArrayList<>(Arrays.asList(version.split("\\.")));
+    final List<String> numbers = new ArrayList<String>(Arrays.asList(version.split("\\.")));
     while (numbers.size() < length) {
       numbers.add("0");
     }
 
-    return String.join(".", numbers);
+    return Joiner.on('.').join(numbers);
   }
 
   /**
@@ -171,9 +166,7 @@ public final class Info { // NOPMD - Disable utility class name rule violation
    * @throws WrappedUnoException If an UNO exception occurs. The UNO exception will be the cause of
    *     the {@link WrappedUnoException}.
    */
-  @Nullable
-  public static String getConfig(
-      @NonNull final XComponentContext context, @NonNull final String propName) {
+  public static String getConfig(final XComponentContext context, final String propName) {
 
     for (final String nodePath : NODE_PATHS) {
       final Object info = getConfig(context, nodePath, propName);
@@ -194,11 +187,8 @@ public final class Info { // NOPMD - Disable utility class name rule violation
    * @throws WrappedUnoException If an UNO exception occurs. The UNO exception will be the cause of
    *     the {@link WrappedUnoException}.
    */
-  @Nullable
   public static Object getConfig(
-      @NonNull final XComponentContext context,
-      @NonNull final String nodePath,
-      @NonNull final String propName) {
+      final XComponentContext context, final String nodePath, final String propName) {
     final XPropertySet set = getConfigProperties(context, nodePath);
     if (set == null) {
       return null;
@@ -212,17 +202,13 @@ public final class Info { // NOPMD - Disable utility class name rule violation
    * @param context The main context.
    * @return The {@link XMultiServiceFactory} service, or null if not available.
    */
-  @Nullable
-  public static XMultiServiceFactory getConfigProvider(@NonNull final XComponentContext context) {
+  public static XMultiServiceFactory getConfigProvider(final XComponentContext context) {
     return Lo.createInstanceMCF(
         context, XMultiServiceFactory.class, "com.sun.star.configuration.ConfigurationProvider");
   }
 
-  @Nullable
   private static Object getConfigAccess(
-      @NonNull final XComponentContext context,
-      @NonNull final String serviceSpecifier,
-      @NonNull final String nodePath) {
+      final XComponentContext context, final String serviceSpecifier, final String nodePath) {
 
     final XMultiServiceFactory provider = getConfigProvider(context);
     if (provider == null) {
@@ -248,9 +234,7 @@ public final class Info { // NOPMD - Disable utility class name rule violation
    * @param nodePath The path for which the configuration access is get.
    * @return The read-only configuration access service, or null if not available.
    */
-  @Nullable
-  public static Object getConfigAccess(
-      @NonNull final XComponentContext context, @NonNull final String nodePath) {
+  public static Object getConfigAccess(final XComponentContext context, final String nodePath) {
     return getConfigAccess(context, "com.sun.star.configuration.ConfigurationAccess", nodePath);
   }
 
@@ -261,9 +245,8 @@ public final class Info { // NOPMD - Disable utility class name rule violation
    * @param nodePath The path for which the configuration access is get.
    * @return The updatable configuration access service, or null if not available.
    */
-  @Nullable
   public static Object getConfigUpdateAccess(
-      @NonNull final XComponentContext context, @NonNull final String nodePath) {
+      final XComponentContext context, final String nodePath) {
     return getConfigAccess(
         context, "com.sun.star.configuration.ConfigurationUpdateAccess", nodePath);
   }
@@ -276,9 +259,8 @@ public final class Info { // NOPMD - Disable utility class name rule violation
    * @return A {@link XPropertySet} containing the configuration properties for the specified path,
    *     or null if not found.
    */
-  @Nullable
   public static XPropertySet getConfigProperties(
-      @NonNull final XComponentContext context, @NonNull final String nodePath) {
+      final XComponentContext context, final String nodePath) {
 
     final Object configAccess = getConfigAccess(context, nodePath);
     if (configAccess == null) {
@@ -296,8 +278,7 @@ public final class Info { // NOPMD - Disable utility class name rule violation
    * @param documentType The document type to check.
    * @return {@code true} if the document is of the specified type, {@code true} otherwise.
    */
-  public static boolean isDocumentType(
-      @NonNull final XComponent document, @NonNull final String documentType) {
+  public static boolean isDocumentType(final XComponent document, final String documentType) {
     return Lo.qi(XServiceInfo.class, document).supportsService(documentType);
   }
 

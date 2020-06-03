@@ -20,8 +20,6 @@
 package org.jodconverter.local.filter;
 
 import com.sun.star.lang.XComponent;
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import org.jodconverter.core.office.OfficeContext;
 import org.jodconverter.core.office.OfficeException;
 
@@ -37,7 +35,7 @@ public interface FilterChain {
    *
    * @param filter The filter to add at the end of the chain.
    */
-  void addFilter(@NonNull Filter filter);
+  void addFilter(Filter filter);
 
   /**
    * Causes the next filter in the chain to be invoked, or if the calling filter is the last filter
@@ -47,8 +45,7 @@ public interface FilterChain {
    * @param document The XComponent being converted to pass along the chain.
    * @throws OfficeException If an error occurs processing the filter.
    */
-  void doFilter(@NonNull final OfficeContext context, @NonNull final XComponent document)
-      throws OfficeException;
+  void doFilter(final OfficeContext context, final XComponent document) throws OfficeException;
 
   /**
    * Creates and returns a copy of this object. The precise meaning of "copy" may depend on the
@@ -56,6 +53,5 @@ public interface FilterChain {
    *
    * @return The copy of this chain.
    */
-  @NonNull
   FilterChain copy();
 }

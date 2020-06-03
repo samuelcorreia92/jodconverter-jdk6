@@ -20,8 +20,6 @@
 package org.jodconverter.remote.office;
 
 import org.apache.http.client.HttpClient;
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import org.jodconverter.core.office.OfficeContext;
 
 /** Represents an office context for remote conversions. */
@@ -32,7 +30,7 @@ public interface RemoteOfficeContext extends OfficeContext {
    *
    * @return The client that will send the conversion request.
    */
-  @NonNull
+
   HttpClient getHttpClient();
 
   /**
@@ -40,6 +38,6 @@ public interface RemoteOfficeContext extends OfficeContext {
    *
    * @return The request configuration.
    */
-  @NonNull
+
   RequestConfig getRequestConfig();
 }

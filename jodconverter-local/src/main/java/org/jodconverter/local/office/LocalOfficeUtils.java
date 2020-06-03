@@ -19,33 +19,24 @@
 
 package org.jodconverter.local.office;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.lang.XComponent;
 import com.sun.star.lang.XServiceInfo;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jodconverter.core.document.DocumentFamily;
 import org.jodconverter.core.office.OfficeException;
 import org.jodconverter.core.util.AssertUtils;
 import org.jodconverter.core.util.OSUtils;
 import org.jodconverter.core.util.StringUtils;
 import org.jodconverter.local.office.utils.Lo;
-import org.jodconverter.local.process.FreeBSDProcessManager;
-import org.jodconverter.local.process.MacProcessManager;
-import org.jodconverter.local.process.ProcessManager;
-import org.jodconverter.local.process.PureJavaProcessManager;
-import org.jodconverter.local.process.UnixProcessManager;
-import org.jodconverter.local.process.WindowsProcessManager;
+import org.jodconverter.local.process.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /** Provides helper functions for local office. */
 public final class LocalOfficeUtils {
@@ -137,12 +128,13 @@ public final class LocalOfficeUtils {
     }
 
     private static File findOfficeHome(final String executablePath, final String... homePaths) {
-
-      return Stream.of(homePaths)
-          .map(File::new)
-          .filter(homeDir -> new File(homeDir, executablePath).isFile())
-          .findFirst()
-          .orElse(null);
+      for (String homePath : homePaths) {
+        File homeDir = new File(homePath);
+        if (new File(homeDir, executablePath).isFile()) {
+          return homeDir;
+        }
+      }
+      return null;
     }
   }
 
@@ -152,7 +144,6 @@ public final class LocalOfficeUtils {
    *
    * @return The best process manager according to the current OS.
    */
-  @NonNull
   public static ProcessManager findBestProcessManager() {
 
     if (OSUtils.IS_OS_MAC) {
@@ -181,10 +172,8 @@ public final class LocalOfficeUtils {
    * @return an array of office URL. If both arguments are null, then an array is returned with a
    *     single office URL, using the default port number 2002.
    */
-  @NonNull
-  public static List<@NonNull OfficeUrl> buildOfficeUrls(
-      @Nullable final List<@NonNull Integer> portNumbers,
-      @Nullable final List<@NonNull String> pipeNames) {
+  public static List<OfficeUrl> buildOfficeUrls(
+      final List<Integer> portNumbers, final List<String> pipeNames) {
 
     // Assign default value if no pipe names or port numbers have been specified.
     if ((portNumbers == null || portNumbers.isEmpty())
@@ -193,12 +182,16 @@ public final class LocalOfficeUtils {
     }
 
     // Build the office URL list and return it
-    final List<OfficeUrl> officeUrls = new ArrayList<>();
+    final List<OfficeUrl> officeUrls = new ArrayList<OfficeUrl>();
     if (portNumbers != null) {
-      portNumbers.stream().map(OfficeUrl::new).forEach(officeUrls::add);
+      for (Integer portNumber : portNumbers) {
+        officeUrls.add(new OfficeUrl(portNumber));
+      }
     }
     if (pipeNames != null) {
-      pipeNames.stream().map(OfficeUrl::new).forEach(officeUrls::add);
+      for (String pipeName : pipeNames) {
+        officeUrls.add(new OfficeUrl(pipeName));
+      }
     }
     return officeUrls;
   }
@@ -209,7 +202,6 @@ public final class LocalOfficeUtils {
    * @return A {@code File} instance that is the directory where lives the first detected office
    *     installation.
    */
-  @NonNull
   public static File getDefaultOfficeHome() {
     return DefaultOfficeHomeHolder.INSTANCE;
   }
@@ -222,9 +214,7 @@ public final class LocalOfficeUtils {
    * @throws org.jodconverter.core.office.OfficeException If the document family cannot be
    *     retrieved.
    */
-  @NonNull
-  public static DocumentFamily getDocumentFamily(@NonNull final XComponent document)
-      throws OfficeException {
+  public static DocumentFamily getDocumentFamily(final XComponent document) throws OfficeException {
 
     AssertUtils.notNull(document, "document must not be null");
 
@@ -250,8 +240,7 @@ public final class LocalOfficeUtils {
    * @param officeHome The root (home) directory of the office installation.
    * @return A instance of the executable file.
    */
-  @NonNull
-  public static File getOfficeExecutable(@NonNull final File officeHome) {
+  public static File getOfficeExecutable(final File officeHome) {
 
     // Mac
     if (OSUtils.IS_OS_MAC) {
@@ -280,8 +269,7 @@ public final class LocalOfficeUtils {
    * @param value The property value.
    * @return The created {@code PropertyValue}.
    */
-  @NonNull
-  public static PropertyValue property(@NonNull final String name, @NonNull final Object value) {
+  public static PropertyValue property(final String name, final Object value) {
 
     final PropertyValue prop = new PropertyValue();
     prop.Name = name;
@@ -296,11 +284,9 @@ public final class LocalOfficeUtils {
    * @param properties The map to convert.
    * @return An array of {@code PropertyValue}.
    */
-  @NonNull
-  public static PropertyValue[] toUnoProperties(
-      @NonNull final Map<@NonNull String, @NonNull Object> properties) {
+  public static PropertyValue[] toUnoProperties(final Map<String, Object> properties) {
 
-    final List<PropertyValue> propertyValues = new ArrayList<>(properties.size());
+    final List<PropertyValue> propertyValues = new ArrayList<PropertyValue>(properties.size());
     for (final Map.Entry<String, Object> entry : properties.entrySet()) {
       Object value = entry.getValue();
       if (value instanceof Map) {
@@ -319,8 +305,7 @@ public final class LocalOfficeUtils {
    * @param file The file for which an URL will be constructed.
    * @return A valid office URL.
    */
-  @NonNull
-  public static String toUrl(@NonNull final File file) {
+  public static String toUrl(final File file) {
 
     final String path = file.toURI().getRawPath();
     final String url = path.startsWith("//") ? "file:" + path : "file://" + path;
@@ -334,7 +319,7 @@ public final class LocalOfficeUtils {
    * @exception IllegalStateException If the specified directory if not a valid office home
    *     directory.
    */
-  public static void validateOfficeHome(@NonNull final File officeHome) {
+  public static void validateOfficeHome(final File officeHome) {
 
     if (!officeHome.isDirectory()) {
       throw new IllegalStateException(
@@ -354,8 +339,7 @@ public final class LocalOfficeUtils {
    * @exception IllegalStateException If the specified directory if not a valid office template
    *     profile directory.
    */
-  public static void validateOfficeTemplateProfileDirectory(
-      @Nullable final File templateProfileDir) {
+  public static void validateOfficeTemplateProfileDirectory(final File templateProfileDir) {
 
     // Template profile directory is not required.
     if (templateProfileDir == null || new File(templateProfileDir, "user").isDirectory()) {
@@ -373,7 +357,7 @@ public final class LocalOfficeUtils {
    * @exception IllegalStateException If the specified directory if not a valid office working
    *     directory.
    */
-  public static void validateOfficeWorkingDirectory(@NonNull final File workingDir) {
+  public static void validateOfficeWorkingDirectory(final File workingDir) {
 
     if (!workingDir.isDirectory()) {
       throw new IllegalStateException(

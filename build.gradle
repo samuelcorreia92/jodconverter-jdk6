@@ -26,13 +26,13 @@ description = '''
 '''
 
 group = 'org.jodconverter'
-version = '4.3.1-SNAPSHOT'
+version = '4.3.0-jdk6'
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Properties
 
 ext {
-    baselineJavaVersion = JavaVersion.VERSION_1_8
+    baselineJavaVersion = JavaVersion.VERSION_1_6
     sourceEncoding = "UTF-8"
 
     // Set up different sub-project lists for individual configuration

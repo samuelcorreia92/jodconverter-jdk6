@@ -24,9 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 /**
  * {@link org.jodconverter.local.process.ProcessManager} implementation for *nix systems. Uses the
  * {@code ps} and {@code kill} commands.
@@ -55,14 +52,12 @@ public class UnixProcessManager extends AbstractProcessManager {
    *
    * @return The default {@code UnixProcessManager} instance.
    */
-  @NonNull
   public static UnixProcessManager getDefault() {
     return DefaultHolder.INSTANCE;
   }
 
-  @NonNull
   @Override
-  protected List<@NonNull String> execute(@NonNull final String[] cmdarray) throws IOException {
+  protected List<String> execute(final String[] cmdarray) throws IOException {
 
     if (runAsArgs == null) {
       return super.execute(cmdarray);
@@ -75,16 +70,14 @@ public class UnixProcessManager extends AbstractProcessManager {
     return super.execute(newarray);
   }
 
-  @NonNull
   @Override
-  protected String[] getRunningProcessesCommand(@NonNull final String process) {
+  protected String[] getRunningProcessesCommand(final String process) {
 
     return new String[] {
       "/bin/sh", "-c", "/bin/ps -e -o pid,args | /bin/grep " + process + " | /bin/grep -v grep"
     };
   }
 
-  @NonNull
   @Override
   protected Pattern getRunningProcessLinePattern() {
 
@@ -92,11 +85,14 @@ public class UnixProcessManager extends AbstractProcessManager {
   }
 
   @Override
-  public void kill(@Nullable final Process process, final long pid) throws IOException {
+  public void kill(final Process process, final long pid) throws IOException {
     if (pid > PID_UNKNOWN) {
       execute(new String[] {"/bin/kill", "-KILL", String.valueOf(pid)});
     } else {
-      super.kill(process, pid);
+      if (process == null) {
+        throw new NullPointerException("process must not be null");
+      }
+      process.destroy();
     }
   }
 
@@ -105,7 +101,7 @@ public class UnixProcessManager extends AbstractProcessManager {
    *
    * @param runAsArgs The sudo command arguments.
    */
-  public void setRunAsArgs(@NonNull final String[] runAsArgs) {
+  public void setRunAsArgs(final String[] runAsArgs) {
     this.runAsArgs = Arrays.copyOf(runAsArgs, runAsArgs.length);
   }
 }

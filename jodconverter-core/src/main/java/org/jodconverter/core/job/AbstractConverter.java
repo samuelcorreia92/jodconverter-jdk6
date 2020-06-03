@@ -19,12 +19,6 @@
 
 package org.jodconverter.core.job;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.Objects;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import org.jodconverter.core.DocumentConverter;
 import org.jodconverter.core.document.DocumentFormat;
 import org.jodconverter.core.document.DocumentFormatRegistry;
@@ -32,6 +26,10 @@ import org.jodconverter.core.office.OfficeManager;
 import org.jodconverter.core.office.TemporaryFileMaker;
 import org.jodconverter.core.util.AssertUtils;
 import org.jodconverter.core.util.FileUtils;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * Base class for all document converter implementations.
@@ -47,8 +45,8 @@ public abstract class AbstractConverter implements DocumentConverter {
   protected final DocumentFormatRegistry formatRegistry;
 
   protected AbstractConverter(
-      @NonNull final OfficeManager officeManager,
-      @NonNull final DocumentFormatRegistry formatRegistry) {
+      final OfficeManager officeManager,
+      final DocumentFormatRegistry formatRegistry) {
     super();
 
     // Both argument are required.
@@ -58,9 +56,9 @@ public abstract class AbstractConverter implements DocumentConverter {
     this.formatRegistry = formatRegistry;
   }
 
-  @NonNull
+
   @Override
-  public ConversionJobWithOptionalSourceFormatUnspecified convert(@NonNull final File source) {
+  public ConversionJobWithOptionalSourceFormatUnspecified convert(final File source) {
 
     final SourceDocumentSpecsFromFile specs = new SourceDocumentSpecsFromFile(source);
     final DocumentFormat format =
@@ -73,18 +71,18 @@ public abstract class AbstractConverter implements DocumentConverter {
     return convert(specs);
   }
 
-  @NonNull
+
   @Override
   public ConversionJobWithOptionalSourceFormatUnspecified convert(
-      @NonNull final InputStream source) {
+      final InputStream source) {
 
     return convert(source, DEFAULT_CLOSE_STREAM);
   }
 
-  @NonNull
+
   @Override
   public ConversionJobWithOptionalSourceFormatUnspecified convert(
-      @NonNull final InputStream source, final boolean closeStream) {
+      final InputStream source, final boolean closeStream) {
 
     if (officeManager instanceof TemporaryFileMaker) {
       return convert(
@@ -102,11 +100,11 @@ public abstract class AbstractConverter implements DocumentConverter {
    * @param source The conversion input as a document specifications.
    * @return The current conversion specification.
    */
-  @NonNull
-  protected abstract AbstractConversionJobWithSourceFormatUnspecified convert(
-      @NonNull AbstractSourceDocumentSpecs source);
 
-  @NonNull
+  protected abstract AbstractConversionJobWithSourceFormatUnspecified convert(
+      AbstractSourceDocumentSpecs source);
+
+
   @Override
   public DocumentFormatRegistry getFormatRegistry() {
     return formatRegistry;
@@ -133,7 +131,7 @@ public abstract class AbstractConverter implements DocumentConverter {
      *
      * @return The converter that is specified by this builder.
      */
-    @NonNull
+
     protected abstract AbstractConverter build();
 
     /**
@@ -142,8 +140,8 @@ public abstract class AbstractConverter implements DocumentConverter {
      * @param officeManager The office manager this converter will use.
      * @return This builder instance.
      */
-    @NonNull
-    public B officeManager(@NonNull final OfficeManager officeManager) {
+
+    public B officeManager(final OfficeManager officeManager) {
 
       AssertUtils.notNull(officeManager, "officeManager must not be null");
       this.officeManager = officeManager;
@@ -157,8 +155,8 @@ public abstract class AbstractConverter implements DocumentConverter {
      * @param formatRegistry The registry that contains the supported formats.
      * @return This builder instance.
      */
-    @NonNull
-    public B formatRegistry(@NonNull final DocumentFormatRegistry formatRegistry) {
+
+    public B formatRegistry(final DocumentFormatRegistry formatRegistry) {
 
       AssertUtils.notNull(formatRegistry, "formatRegistry must not be null");
       this.formatRegistry = formatRegistry;

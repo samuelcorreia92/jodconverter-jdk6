@@ -50,7 +50,7 @@ public class JodConverterRemoteAutoConfiguration {
    * @param properties The remote properties.
    */
   public JodConverterRemoteAutoConfiguration(
-      @NonNull final JodConverterRemoteProperties properties) {
+      final JodConverterRemoteProperties properties) {
     this.properties = properties;
   }
 

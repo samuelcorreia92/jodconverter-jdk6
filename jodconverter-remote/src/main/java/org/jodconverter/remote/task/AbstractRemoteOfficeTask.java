@@ -19,8 +19,6 @@
 
 package org.jodconverter.remote.task;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import org.jodconverter.core.job.SourceDocumentSpecs;
 import org.jodconverter.core.task.AbstractOfficeTask;
 
@@ -36,11 +34,11 @@ public abstract class AbstractRemoteOfficeTask extends AbstractOfficeTask {
    *
    * @param source The source specifications of the document.
    */
-  public AbstractRemoteOfficeTask(@NonNull final SourceDocumentSpecs source) {
+  public AbstractRemoteOfficeTask(final SourceDocumentSpecs source) {
     super(source);
   }
 
-  @NonNull
+
   @Override
   public String toString() {
     return getClass().getSimpleName() + "{" + "source=" + source + '}';

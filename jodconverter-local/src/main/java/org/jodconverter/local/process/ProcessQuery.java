@@ -19,8 +19,6 @@
 
 package org.jodconverter.local.process;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 /** Contains the required information used to query for a running process. */
 public class ProcessQuery {
 
@@ -33,7 +31,7 @@ public class ProcessQuery {
    * @param command The process command.
    * @param argument The process argument.
    */
-  public ProcessQuery(@NonNull final String command, @NonNull final String argument) {
+  public ProcessQuery(final String command, final String argument) {
     super();
 
     this.command = command;
@@ -45,7 +43,7 @@ public class ProcessQuery {
    *
    * @return The process argument.
    */
-  @NonNull
+
   public String getArgument() {
     return argument;
   }
@@ -55,12 +53,12 @@ public class ProcessQuery {
    *
    * @return The process command.
    */
-  @NonNull
+
   public String getCommand() {
     return command;
   }
 
-  @NonNull
+
   @Override
   public String toString() {
     return "ProcessQuery{" + "command='" + command + '\'' + ", argument='" + argument + '\'' + '}';

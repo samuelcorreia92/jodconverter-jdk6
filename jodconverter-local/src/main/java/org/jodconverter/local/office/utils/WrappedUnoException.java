@@ -19,8 +19,6 @@
 
 package org.jodconverter.local.office.utils;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 /** This is an exception that wraps a checked exception thrown by office. */
 public class WrappedUnoException extends RuntimeException {
   private static final long serialVersionUID = -319689113848560152L;
@@ -35,7 +33,7 @@ public class WrappedUnoException extends RuntimeException {
    *     unknown.)
    */
   public WrappedUnoException(
-      @NonNull final String message, final com.sun.star.uno.Exception cause) {
+      final String message, final com.sun.star.uno.Exception cause) {
     super(message, cause);
   }
 

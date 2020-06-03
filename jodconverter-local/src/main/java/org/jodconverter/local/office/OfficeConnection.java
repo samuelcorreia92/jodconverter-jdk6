@@ -19,11 +19,6 @@
 
 package org.jodconverter.local.office;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.bridge.XBridge;
 import com.sun.star.bridge.XBridgeFactory;
@@ -37,12 +32,14 @@ import com.sun.star.lang.XComponent;
 import com.sun.star.lang.XEventListener;
 import com.sun.star.lang.XMultiComponentFactory;
 import com.sun.star.uno.XComponentContext;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jodconverter.local.office.utils.Lo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jodconverter.local.office.utils.Lo;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * An OfficeConnection is responsible to manage the connection to an office process using a given
@@ -67,10 +64,10 @@ public class OfficeConnection implements LocalOfficeContext, XEventListener {
    *
    * @param officeUrl The URL for which the connection is created.
    */
-  public OfficeConnection(@NonNull final OfficeUrl officeUrl) {
+  public OfficeConnection(final OfficeUrl officeUrl) {
 
     this.officeUrl = officeUrl;
-    this.connectionEventListeners = new ArrayList<>();
+    this.connectionEventListeners = new ArrayList<OfficeConnectionEventListener>();
   }
 
   /**
@@ -80,7 +77,7 @@ public class OfficeConnection implements LocalOfficeContext, XEventListener {
    *     established with an office process and when a connection is lost.
    */
   public void addConnectionEventListener(
-      @NonNull final OfficeConnectionEventListener connectionEventListener) {
+      final OfficeConnectionEventListener connectionEventListener) {
 
     connectionEventListeners.add(connectionEventListener);
   }
@@ -165,12 +162,10 @@ public class OfficeConnection implements LocalOfficeContext, XEventListener {
         desktopService =
             officeMultiComponentFactory.createInstanceWithContext(
                 "com.sun.star.frame.Desktop", componentContext);
-        componentLoader =
-            Lo.qiOptional(XComponentLoader.class, desktopService)
-                .orElseThrow(
-                    () ->
-                        new OfficeConnectionException(
-                            "Could not create a desktop service", connectPart));
+        componentLoader = Lo.qiOptional(XComponentLoader.class, desktopService).orNull();
+        if (componentLoader == null) {
+          throw new OfficeConnectionException("Could not create a desktop service", connectPart);
+        }
 
         // We are now connected
         connected.set(true);
@@ -178,8 +173,9 @@ public class OfficeConnection implements LocalOfficeContext, XEventListener {
 
         // Inform all the listener that we are connected
         final OfficeConnectionEvent connectionEvent = new OfficeConnectionEvent(this);
-        connectionEventListeners.forEach(listener -> listener.connected(connectionEvent));
-
+        for (OfficeConnectionEventListener listener : connectionEventListeners) {
+          listener.connected(connectionEvent);
+        }
       } catch (OfficeConnectionException connectionEx) {
         throw connectionEx;
 
@@ -206,7 +202,7 @@ public class OfficeConnection implements LocalOfficeContext, XEventListener {
   }
 
   @Override
-  public void disposing(@NonNull final EventObject eventObject) {
+  public void disposing(final EventObject eventObject) {
 
     if (connected.compareAndSet(true, false)) {
 
@@ -222,30 +218,28 @@ public class OfficeConnection implements LocalOfficeContext, XEventListener {
 
       // Inform listeners. Must be done at the end since a listener may recreated the bridge
       final OfficeConnectionEvent connectionEvent = new OfficeConnectionEvent(this);
-      connectionEventListeners.forEach(listener -> listener.disconnected(connectionEvent));
+      for (OfficeConnectionEventListener listener : connectionEventListeners) {
+        listener.disconnected(connectionEvent);
+      }
     }
     // else we tried to connect to a server that doesn't speak URP
   }
 
-  @Nullable
   @Override
   public XComponentContext getComponentContext() {
     return componentContext;
   }
 
-  @Nullable
   @Override
   public XMultiComponentFactory getServiceManager() {
     return serviceManager;
   }
 
-  @Nullable
   @Override
   public XComponentLoader getComponentLoader() {
     return componentLoader;
   }
 
-  @Nullable
   @Override
   public XDesktop getDesktop() {
     if (desktopService == null) {
@@ -253,7 +247,7 @@ public class OfficeConnection implements LocalOfficeContext, XEventListener {
     }
 
     // Needed only when stopping a process for now, so no need to keep an instance of it.
-    return Lo.qiOptional(XDesktop.class, desktopService).orElse(null);
+    return Lo.qiOptional(XDesktop.class, desktopService).orNull();
   }
 
   /**

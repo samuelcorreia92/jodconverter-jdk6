@@ -19,15 +19,8 @@
 
 package org.jodconverter.core.util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.Charset;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 /** Contains IO helper functions. */
 public final class IOUtils {
@@ -43,14 +36,14 @@ public final class IOUtils {
    * @return The input stream content, as a string, never {@code null}.
    * @throws IOException If an IO error occurs.
    */
-  public static String toString(@NonNull final InputStream in, @NonNull final Charset encoding)
-      throws IOException {
+  public static String toString(final InputStream in, final Charset encoding) throws IOException {
     AssertUtils.notNull(in, "in must not be null");
     AssertUtils.notNull(encoding, "encoding must not be null");
 
     final StringBuilder builder = new StringBuilder();
-    try (Reader source = new BufferedReader(new InputStreamReader(in, encoding))) {
-
+    Reader source = null;
+    try {
+      source = new BufferedReader(new InputStreamReader(in, encoding));
       // Inspired from private java.nio.file.Files.copy(InputStream, OutputStream)
       // long nread = 0L;
       final char[] buf = new char[BUFFER_SIZE];
@@ -60,6 +53,10 @@ public final class IOUtils {
         // nread += n;
       }
       // LOGGER.debug("Total number of characters read: {}", nread);
+    } finally {
+      if (source != null) {
+        source.close();
+      }
     }
 
     return builder.toString();
@@ -74,8 +71,7 @@ public final class IOUtils {
    * @return The number of bytes read or written.
    * @throws IOException If an IO error occurs.
    */
-  public static long copy(@NonNull final InputStream in, @NonNull final OutputStream out)
-      throws IOException {
+  public static long copy(final InputStream in, final OutputStream out) throws IOException {
     AssertUtils.notNull(in, "in must not be null");
     AssertUtils.notNull(out, "out must not be null");
 

@@ -23,7 +23,6 @@ import com.sun.star.beans.PropertyValue;
 import com.sun.star.beans.UnknownPropertyException;
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.lang.WrappedTargetException;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
  * A collection of utility functions to make Office properties easier to use.
@@ -44,8 +43,7 @@ public final class Props { // NOPMD - Disable utility class name rule violation
    * @throws WrappedUnoException If an UNO exception occurs. The UNO exception will be the cause of
    *     the {@link WrappedUnoException}.
    */
-  @NonNull
-  public static Object getProperty(@NonNull final Object obj, @NonNull final String propName) {
+  public static Object getProperty(final Object obj, final String propName) {
     return getProperty(Lo.qi(XPropertySet.class, obj), propName);
   }
 
@@ -58,13 +56,13 @@ public final class Props { // NOPMD - Disable utility class name rule violation
    * @throws WrappedUnoException If an UNO exception occurs. The UNO exception will be the cause of
    *     the {@link WrappedUnoException}.
    */
-  @NonNull
-  public static Object getProperty(
-      @NonNull final XPropertySet props, @NonNull final String propName) {
+  public static Object getProperty(final XPropertySet props, final String propName) {
 
     try {
       return props.getPropertyValue(propName);
-    } catch (UnknownPropertyException | WrappedTargetException ex) {
+    } catch (UnknownPropertyException ex) {
+      throw new WrappedUnoException(ex.getMessage(), ex);
+    } catch (WrappedTargetException ex) {
       throw new WrappedUnoException(ex.getMessage(), ex);
     }
   }
@@ -77,9 +75,7 @@ public final class Props { // NOPMD - Disable utility class name rule violation
    * @param value The property value.
    * @return An array of size 1.
    */
-  @NonNull
-  public static PropertyValue[] makeProperties(
-      @NonNull final String name, @NonNull final Object value) {
+  public static PropertyValue[] makeProperties(final String name, final Object value) {
 
     final PropertyValue[] props = {new PropertyValue()};
     props[0].Name = name;
@@ -97,12 +93,8 @@ public final class Props { // NOPMD - Disable utility class name rule violation
    * @param value2 The second property value.
    * @return An array of size 2.
    */
-  @NonNull
   public static PropertyValue[] makeProperties(
-      @NonNull final String name1,
-      @NonNull final Object value1,
-      @NonNull final String name2,
-      @NonNull final Object value2) {
+      final String name1, final Object value1, final String name2, final Object value2) {
 
     final PropertyValue[] props = {new PropertyValue(), new PropertyValue()};
     props[0].Name = name1;
@@ -120,9 +112,7 @@ public final class Props { // NOPMD - Disable utility class name rule violation
    * @param values The property values.
    * @return An array of properties.
    */
-  @NonNull
-  public static PropertyValue[] makeProperties(
-      @NonNull final String[] names, @NonNull final Object[] values) {
+  public static PropertyValue[] makeProperties(final String[] names, final Object[] values) {
 
     if (names.length != values.length) {
       throw new IllegalArgumentException("Mismatch in lengths of names and values");

@@ -19,8 +19,6 @@
 
 package org.jodconverter.local.office;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import org.jodconverter.core.office.OfficeException;
 
 /** Exceptions thrown when a connection to an office process failed. */
@@ -38,7 +36,7 @@ public class OfficeConnectionException extends OfficeException {
    * @param connectString The connection string of the connection.
    */
   public OfficeConnectionException(
-      @NonNull final String message, @NonNull final String connectString) {
+      final String message, final String connectString) {
     super(message);
 
     this.connectString = connectString;
@@ -58,9 +56,9 @@ public class OfficeConnectionException extends OfficeException {
    *     unknown.)
    */
   public OfficeConnectionException(
-      @NonNull final String message,
-      @NonNull final String connectString,
-      @NonNull final Throwable cause) {
+      final String message,
+      final String connectString,
+      final Throwable cause) {
     super(message, cause);
 
     this.connectString = connectString;
@@ -71,7 +69,7 @@ public class OfficeConnectionException extends OfficeException {
    *
    * @return The connection string.
    */
-  @NonNull
+
   public String getConnectString() {
 
     return connectString;

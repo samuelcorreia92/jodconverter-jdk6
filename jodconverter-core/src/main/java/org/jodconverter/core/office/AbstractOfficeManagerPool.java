@@ -19,6 +19,11 @@
 
 package org.jodconverter.core.office;
 
+import org.jodconverter.core.task.OfficeTask;
+import org.jodconverter.core.util.AssertUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -26,14 +31,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.jodconverter.core.task.OfficeTask;
-import org.jodconverter.core.util.AssertUtils;
 
 /**
  * An AbstractOfficeManagerPool is responsible to maintain a pool of {@link
@@ -51,7 +48,7 @@ public abstract class AbstractOfficeManagerPool extends AbstractOfficeManager {
   private static final int POOL_SHUTDOWN = 2;
   protected static final int DEFAULT_POOL_SIZE = 1;
   // The default maximum living time of a task in the conversion queue.
-  private static final long DEFAULT_TASK_QUEUE_TIMEOUT = 30_000L; // 30 seconds
+  private static final long DEFAULT_TASK_QUEUE_TIMEOUT = 30000L; // 30 seconds
 
   private final AtomicInteger poolState = new AtomicInteger(POOL_STOPPED);
 
@@ -68,16 +65,14 @@ public abstract class AbstractOfficeManagerPool extends AbstractOfficeManager {
    *     will be removed from the queue if the waiting time is longer than this timeout.
    */
   protected AbstractOfficeManagerPool(
-      @NonNull final File workingDir,
-      @Nullable final Integer poolSize,
-      @Nullable final Long taskQueueTimeout) {
+      final File workingDir, final Integer poolSize, final Long taskQueueTimeout) {
     super(workingDir);
 
     this.taskQueueTimeout =
         taskQueueTimeout == null ? DEFAULT_TASK_QUEUE_TIMEOUT : taskQueueTimeout;
 
     // Create the pool
-    pool = new ArrayBlockingQueue<>(poolSize == null ? DEFAULT_POOL_SIZE : poolSize);
+    pool = new ArrayBlockingQueue<OfficeManager>(poolSize == null ? DEFAULT_POOL_SIZE : poolSize);
   }
 
   /**
@@ -85,12 +80,12 @@ public abstract class AbstractOfficeManagerPool extends AbstractOfficeManager {
    *
    * @param entries The entries.
    */
-  protected void setEntries(@NonNull final List<@NonNull OfficeManager> entries) {
+  protected void setEntries(final List<OfficeManager> entries) {
     this.entries = Collections.unmodifiableList(entries);
   }
 
   @Override
-  public final void execute(@NonNull final OfficeTask task) throws OfficeException {
+  public final void execute(final OfficeTask task) throws OfficeException {
 
     if (!isRunning()) {
       throw new IllegalStateException("This office manager is not running.");
@@ -243,8 +238,7 @@ public abstract class AbstractOfficeManagerPool extends AbstractOfficeManager {
      * @param taskExecutionTimeout The task execution timeout, in milliseconds.
      * @return This builder instance.
      */
-    @NonNull
-    public B taskExecutionTimeout(@Nullable final Long taskExecutionTimeout) {
+    public B taskExecutionTimeout(final Long taskExecutionTimeout) {
 
       if (taskExecutionTimeout != null) {
         AssertUtils.isTrue(
@@ -265,8 +259,7 @@ public abstract class AbstractOfficeManagerPool extends AbstractOfficeManager {
      * @param taskQueueTimeout The task queue timeout, in milliseconds.
      * @return This builder instance.
      */
-    @NonNull
-    public B taskQueueTimeout(@Nullable final Long taskQueueTimeout) {
+    public B taskQueueTimeout(final Long taskQueueTimeout) {
 
       if (taskQueueTimeout != null) {
         AssertUtils.isTrue(

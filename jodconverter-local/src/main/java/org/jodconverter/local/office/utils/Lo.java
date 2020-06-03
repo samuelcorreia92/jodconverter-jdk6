@@ -19,16 +19,12 @@
 
 package org.jodconverter.local.office.utils;
 
-import java.util.Optional;
-
+import com.google.common.base.Optional;
 import com.sun.star.lang.XComponent;
 import com.sun.star.lang.XMultiServiceFactory;
 import com.sun.star.uno.Exception;
 import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import org.jodconverter.core.util.AssertUtils;
 
 /**
@@ -57,8 +53,7 @@ public final class Lo { // NOPMD - Disable utility class name rule violation
    * @return A reference to the requested UNO interface type.
    * @see UnoRuntime#queryInterface(Class, Object)
    */
-  @NonNull
-  public static <T> T qi(@NonNull final Class<T> type, @NonNull final Object object) {
+  public static <T> T qi(final Class<T> type, final Object object) {
 
     AssertUtils.notNull(type, "type must not be null");
     AssertUtils.notNull(type, "object must not be null");
@@ -85,11 +80,8 @@ public final class Lo { // NOPMD - Disable utility class name rule violation
    * @return A reference to the requested UNO interface type if available, otherwise {@code null}.
    * @see UnoRuntime#queryInterface(Class, Object)
    */
-  @NonNull
-  public static <T> Optional<T> qiOptional(
-      @NonNull final Class<T> type, @NonNull final Object object) {
-
-    return Optional.ofNullable(UnoRuntime.queryInterface(type, object));
+  public static <T> Optional<T> qiOptional(final Class<T> type, final Object object) {
+    return Optional.fromNullable(UnoRuntime.queryInterface(type, object));
   }
 
   /**
@@ -98,8 +90,7 @@ public final class Lo { // NOPMD - Disable utility class name rule violation
    * @param component The component.
    * @return The service factory.
    */
-  @NonNull
-  public static XMultiServiceFactory getServiceFactory(@NonNull final XComponent component) {
+  public static XMultiServiceFactory getServiceFactory(final XComponent component) {
     return qi(XMultiServiceFactory.class, component);
   }
 
@@ -115,11 +106,8 @@ public final class Lo { // NOPMD - Disable utility class name rule violation
    * @throws WrappedUnoException If an UNO exception occurs. The UNO exception will be the cause of
    *     the {@link WrappedUnoException}.
    */
-  @NonNull
   public static <T> T createInstanceMSF(
-      @NonNull final XComponent component,
-      @NonNull final Class<T> type,
-      @NonNull final String serviceName) {
+      final XComponent component, final Class<T> type, final String serviceName) {
 
     // Create service component using the specified factory.
     // Then uses bridge to obtain proxy to remote interface inside service;
@@ -139,11 +127,8 @@ public final class Lo { // NOPMD - Disable utility class name rule violation
    * @throws WrappedUnoException If an UNO exception occurs. The UNO exception will be the cause of
    *     the {@link WrappedUnoException}.
    */
-  @NonNull
   public static <T> T createInstanceMSF(
-      @NonNull final XMultiServiceFactory factory,
-      @NonNull final Class<T> type,
-      @NonNull final String serviceName) {
+      final XMultiServiceFactory factory, final Class<T> type, final String serviceName) {
 
     // Create service component using the specified factory.
     // Then uses bridge to obtain proxy to remote interface inside service;
@@ -167,11 +152,8 @@ public final class Lo { // NOPMD - Disable utility class name rule violation
    * @throws WrappedUnoException If an UNO exception occurs. The UNO exception will be the cause of
    *     the {@link WrappedUnoException}.
    */
-  @Nullable
   public static <T> T createInstanceMCF(
-      @NonNull final XComponentContext context,
-      @NonNull final Class<T> type,
-      @NonNull final String serviceName) {
+      final XComponentContext context, final Class<T> type, final String serviceName) {
 
     // Create service component using the specified component context.
     // Then uses bridge to obtain proxy to remote interface inside service;
@@ -179,7 +161,7 @@ public final class Lo { // NOPMD - Disable utility class name rule violation
     try {
       return qiOptional(
               type, context.getServiceManager().createInstanceWithContext(serviceName, context))
-          .orElse(null);
+          .orNull();
     } catch (Exception ex) {
       throw new WrappedUnoException(ex);
     }

@@ -19,8 +19,6 @@
 
 package org.jodconverter.core.job;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import org.jodconverter.core.document.DocumentFormat;
 
 /** A conversion job with required target format that is not yet applied to the converter. */
@@ -32,6 +30,6 @@ public interface ConversionJobWithRequiredTargetFormatUnspecified {
    * @param format The document format of the target document.
    * @return The current conversion specification.
    */
-  @NonNull
-  ConversionJob as(@NonNull DocumentFormat format);
+
+  ConversionJob as(DocumentFormat format);
 }

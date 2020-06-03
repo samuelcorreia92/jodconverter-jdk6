@@ -19,8 +19,6 @@
 
 package org.jodconverter.local.filter.text;
 
-import java.util.Objects;
-
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.container.XNameAccess;
 import com.sun.star.container.XNameContainer;
@@ -29,16 +27,15 @@ import com.sun.star.style.XStyle;
 import com.sun.star.style.XStyleFamiliesSupplier;
 import com.sun.star.text.XTextCursor;
 import com.sun.star.text.XTextDocument;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jodconverter.core.office.OfficeContext;
 import org.jodconverter.local.filter.Filter;
 import org.jodconverter.local.filter.FilterChain;
 import org.jodconverter.local.office.utils.Lo;
 import org.jodconverter.local.office.utils.Write;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /** This filter is used to set the margins of the document being converted. */
 public class PageMarginsFilter implements Filter {
@@ -67,10 +64,10 @@ public class PageMarginsFilter implements Filter {
    *     does not change.
    */
   public PageMarginsFilter(
-      @Nullable final Integer leftMargin,
-      @Nullable final Integer topMargin,
-      @Nullable final Integer rightMargin,
-      @Nullable final Integer bottomMargin) {
+      final Integer leftMargin,
+      final Integer topMargin,
+      final Integer rightMargin,
+      final Integer bottomMargin) {
     super();
 
     this.leftMargin = leftMargin;
@@ -81,9 +78,9 @@ public class PageMarginsFilter implements Filter {
 
   @Override
   public void doFilter(
-      @NonNull final OfficeContext context,
-      @NonNull final XComponent document,
-      @NonNull final FilterChain chain)
+      final OfficeContext context,
+      final XComponent document,
+      final FilterChain chain)
       throws Exception {
 
     LOGGER.debug("Applying the PageMarginsFilter");

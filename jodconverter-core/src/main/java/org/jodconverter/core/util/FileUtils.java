@@ -19,21 +19,11 @@
 
 package org.jodconverter.core.util;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
-import java.nio.file.CopyOption;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Comparator;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /** Contains files helper functions. */
 public final class FileUtils {
@@ -41,7 +31,7 @@ public final class FileUtils {
   private static final char UNIX_SEPARATOR = '/';
   private static final char WINDOWS_SEPARATOR = '\\';
 
-  //  private static int lastIndexOfSeparator(@NonNull final String filename) {
+  //  private static int lastIndexOfSeparator(final String filename) {
   //
   //    final int idx = filename.lastIndexOf(UNIX_SEPARATOR);
   //    if (idx == -1) {
@@ -50,7 +40,7 @@ public final class FileUtils {
   //    return idx;
   //  }
 
-  private static boolean endsWithSeparator(@NonNull final String filename) {
+  private static boolean endsWithSeparator(final String filename) {
 
     if (filename.length() == 0) {
       return false;
@@ -68,33 +58,13 @@ public final class FileUtils {
    *     {@code null} input file or a file that does not exist will also returns {@code false}.
    * @throws IOException If an IO error occurs.
    */
-  public static boolean delete(@Nullable final File file) throws IOException {
+  public static boolean delete(final File file) throws IOException {
     if (file == null || !file.exists()) {
       return false;
     }
 
-    final Path pathToDelete = file.toPath();
-
-    if (Files.isDirectory(pathToDelete)) {
-      try {
-        Files.walk(pathToDelete)
-            .sorted(Comparator.reverseOrder())
-            .forEach(
-                path -> {
-                  try {
-                    Files.delete(path);
-                  } catch (IOException ex) {
-                    throw new UncheckedIOException(ex);
-                  }
-                });
-      } catch (UncheckedIOException ex) {
-        throw ex.getCause();
-      }
-    } else {
-      Files.delete(pathToDelete);
-    }
-
-    return !Files.exists(pathToDelete);
+    org.apache.commons.io.FileUtils.forceDelete(file);
+    return true;
   }
 
   /**
@@ -104,7 +74,7 @@ public final class FileUtils {
    * @param file File or directory to delete, can be {@code null}.
    * @return {@code true} If the file or directory is deleted, {@code false} otherwise.
    */
-  public static boolean deleteQuietly(@Nullable final File file) {
+  public static boolean deleteQuietly(final File file) {
     try {
       return delete(file);
     } catch (IOException ignored) {
@@ -119,20 +89,8 @@ public final class FileUtils {
    * @param filename The filename to query, may be {@code null}.
    * @return The name of the file without the path and extension, or an empty string if none exists.
    */
-  @Nullable
-  public static String getBaseName(@Nullable final String filename) {
-    if (filename == null) {
-      return null;
-    }
-    if (endsWithSeparator(filename)) {
-      return "";
-    }
-    final String name = Paths.get(filename).getFileName().toString();
-    final int i = name.lastIndexOf('.');
-    if (i == -1) {
-      return name;
-    }
-    return name.substring(0, i);
+  public static String getBaseName(final String filename) {
+    return FilenameUtils.getBaseName(filename);
   }
 
   /**
@@ -141,20 +99,8 @@ public final class FileUtils {
    * @param filename The filename to query, may be {@code null}.
    * @return The extension of the file, or an empty string if none exists.
    */
-  @Nullable
-  public static String getExtension(@Nullable final String filename) {
-    if (filename == null) {
-      return null;
-    }
-    if (endsWithSeparator(filename)) {
-      return "";
-    }
-    final String name = Paths.get(filename).getFileName().toString();
-    final int i = name.lastIndexOf('.');
-    if (i == -1 || i == name.length()) {
-      return "";
-    }
-    return name.substring(i + 1);
+  public static String getExtension(final String filename) {
+    return FilenameUtils.getExtension(filename);
   }
 
   /**
@@ -164,15 +110,8 @@ public final class FileUtils {
    * @param filename The filename to query, may be {@code null}.
    * @return The name of the file without the path, or an empty string if none exists.
    */
-  @Nullable
-  public static String getName(@Nullable final String filename) {
-    if (filename == null) {
-      return null;
-    }
-    if (endsWithSeparator(filename)) {
-      return "";
-    }
-    return Paths.get(filename).getFileName().toString();
+  public static String getName(final String filename) {
+    return FilenameUtils.getName(filename);
   }
 
   /**
@@ -183,21 +122,20 @@ public final class FileUtils {
    * @param options Options specifying how the copy should be done.
    * @throws IOException If an IO error occurs.
    */
-  public static void copyFile(
-      @NonNull final File srcFile,
-      @NonNull final File destFile,
-      @Nullable final CopyOption... options)
-      throws IOException {
-    AssertUtils.notNull(srcFile, "srcFile must not be null");
-    AssertUtils.notNull(destFile, "destFile must not be null");
-
-    final Path srcPath = srcFile.toPath();
-
-    AssertUtils.isTrue(Files.isRegularFile(srcPath), "srcFile must be an existing file");
-
-    Files.copy(srcPath, destFile.toPath(), options);
-    destFile.setLastModified(srcFile.lastModified());
-  }
+  //  TODO FERD
+  //  public static void copyFile(final File srcFile, final File destFile, final CopyOption...
+  // options)
+  //      throws IOException {
+  //    AssertUtils.notNull(srcFile, "srcFile must not be null");
+  //    AssertUtils.notNull(destFile, "destFile must not be null");
+  //
+  //    final Path srcPath = srcFile.toPath();
+  //
+  //    AssertUtils.isTrue(Files.isRegularFile(srcPath), "srcFile must be an existing file");
+  //
+  //    Files.copy(srcPath, destFile.toPath(), options);
+  //    destFile.setLastModified(srcFile.lastModified());
+  //  }
 
   /**
    * Copies a file to a directory, preserving the last modified date.
@@ -207,46 +145,30 @@ public final class FileUtils {
    * @param options Options specifying how the copy should be done.
    * @throws IOException If an IO error occurs.
    */
-  public static void copyFileToDirectory(
-      @NonNull final File srcFile,
-      @NonNull final File destDir,
-      @Nullable final CopyOption... options)
-      throws IOException {
-    AssertUtils.notNull(srcFile, "srcFile must not be null");
-    AssertUtils.notNull(destDir, "destDir must not be null");
-
-    final Path srcPath = srcFile.toPath();
-
-    AssertUtils.isTrue(Files.isRegularFile(srcPath), "srcFile must be an existing file");
-
-    final Path destPath = destDir.toPath().resolve(srcFile.getName());
-    Files.copy(srcPath, destPath, options);
-    destPath.toFile().setLastModified(srcFile.lastModified());
-  }
+  //  TODO FERD
+  //  public static void copyFileToDirectory(
+  //      final File srcFile, final File destDir, final CopyOption... options) throws IOException {
+  //    AssertUtils.notNull(srcFile, "srcFile must not be null");
+  //    AssertUtils.notNull(destDir, "destDir must not be null");
+  //
+  //    final Path srcPath = srcFile.toPath();
+  //
+  //    AssertUtils.isTrue(Files.isRegularFile(srcPath), "srcFile must be an existing file");
+  //
+  //    final Path destPath = destDir.toPath().resolve(srcFile.getName());
+  //    Files.copy(srcPath, destPath, options);
+  //    destPath.toFile().setLastModified(srcFile.lastModified());
+  //  }
 
   /**
    * Copies a directory recursively, preserving the files last modified date.
    *
    * @param srcDir An existing directory to copy, must not be {@code null}.
    * @param destDir The target directory, must not be {@code null}.
-   * @param options Options specifying how the copy should be done.
    * @throws IOException If an IO error occurs.
    */
-  public static void copyDirectory(
-      @NonNull final File srcDir,
-      @NonNull final File destDir,
-      @Nullable final CopyOption... options)
-      throws IOException {
-    AssertUtils.notNull(srcDir, "srcDir must not be null");
-    AssertUtils.notNull(destDir, "destDir must not be null");
-
-    final Path srcPath = srcDir.toPath();
-    final Path destPath = destDir.toPath();
-
-    AssertUtils.isTrue(Files.isDirectory(srcPath), "srcDir must be an existing directory");
-    AssertUtils.isTrue(!Files.isDirectory(destPath), "destDir already exists");
-
-    Files.walkFileTree(srcPath, new CopyDir(srcPath, destPath));
+  public static void copyDirectory(final File srcDir, final File destDir) throws IOException {
+    org.apache.commons.io.FileUtils.copyDirectory(srcDir, destDir);
   }
 
   /**
@@ -257,53 +179,16 @@ public final class FileUtils {
    * @return the file contents, never {@code null}.
    * @throws IOException If an IO error occurs.
    */
-  @NonNull
-  public static String readFileToString(@NonNull final File file, @NonNull final Charset encoding)
+  public static String readFileToString(final File file, final Charset encoding)
       throws IOException {
     AssertUtils.notNull(file, "file must not be null");
     AssertUtils.notNull(encoding, "encoding must not be null");
 
-    return new String(Files.readAllBytes(file.toPath()), encoding);
+    return org.apache.commons.io.FileUtils.readFileToString(file, encoding);
   }
 
   // Suppresses default constructor, ensuring non-instantiability.
   private FileUtils() {
     throw new AssertionError("Utility class must not be instantiated");
-  }
-
-  /** Visitor that helps copy a directory recursively. */
-  private static class CopyDir extends SimpleFileVisitor<Path> {
-    private final Path sourceDir;
-    private final Path targetDir;
-    private final CopyOption[] options;
-
-    /* default */ CopyDir(final Path sourceDir, final Path targetDir, final CopyOption... options) {
-      super();
-
-      this.sourceDir = sourceDir;
-      this.targetDir = targetDir;
-      this.options = options;
-    }
-
-    @Override
-    public FileVisitResult visitFile(final Path file, final BasicFileAttributes attributes)
-        throws IOException {
-
-      final Path targetFile = targetDir.resolve(sourceDir.relativize(file));
-      Files.copy(file, targetFile, options);
-      targetFile.toFile().setLastModified(file.toFile().lastModified());
-
-      return FileVisitResult.CONTINUE;
-    }
-
-    @Override
-    public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attributes)
-        throws IOException {
-
-      final Path newDir = targetDir.resolve(sourceDir.relativize(dir));
-      Files.createDirectory(newDir);
-
-      return FileVisitResult.CONTINUE;
-    }
   }
 }
