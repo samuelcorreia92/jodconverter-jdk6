@@ -75,13 +75,12 @@ public class ConverterServlet extends HttpServlet {
     }
     final String inputExtension = FileUtils.getExtension(uploadedFile.getName());
 
-    final String baseName = Objects.requireNonNull(FileUtils.getBaseName(uploadedFile.getName()));
+    final String baseName = FileUtils.getBaseName(uploadedFile.getName());
     final File inputFile = File.createTempFile(baseName, "." + inputExtension);
     FileUtils.deleteQuietly(inputFile);
     writeUploadedFile(uploadedFile, inputFile);
 
-    final String outputExtension =
-        Objects.requireNonNull(FileUtils.getExtension(request.getRequestURI()));
+    final String outputExtension = FileUtils.getExtension(request.getRequestURI());
     final File outputFile = File.createTempFile(baseName, "." + outputExtension);
     FileUtils.deleteQuietly(outputFile);
     try {
@@ -97,10 +96,7 @@ public class ConverterServlet extends HttpServlet {
                 outputExtension,
                 System.currentTimeMillis() - startTime));
       }
-      response.setContentType(
-          Objects.requireNonNull(
-                  converter.getFormatRegistry().getFormatByExtension(outputExtension))
-              .getMediaType());
+      response.setContentType(converter.getFormatRegistry().getFormatByExtension(outputExtension).getMediaType());
       response.setHeader(
           "Content-Disposition", "attachment; filename=" + baseName + "." + outputExtension);
       sendFile(outputFile, response);

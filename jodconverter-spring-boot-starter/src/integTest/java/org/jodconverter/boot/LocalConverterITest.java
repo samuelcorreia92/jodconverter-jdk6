@@ -19,14 +19,9 @@
 
 package org.jodconverter.boot;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.util.Objects;
-
+import org.jodconverter.core.DocumentConverter;
+import org.jodconverter.core.document.DocumentFamily;
+import org.jodconverter.core.office.OfficeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -36,9 +31,13 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.TestPropertySource;
 
-import org.jodconverter.core.DocumentConverter;
-import org.jodconverter.core.document.DocumentFamily;
-import org.jodconverter.core.office.OfficeException;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.util.Objects;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /** Contains tests for the {@link org.jodconverter.local.LocalConverter} class. */
 @SpringBootTest
@@ -110,7 +109,7 @@ public class LocalConverterITest {
 
     assertThat(outputFile).as("Check %s file creation", outputFile.getName()).isFile();
     // Check that the EmbedImages option has been applied
-    assertThat(Objects.requireNonNull(outputDir.list()).length)
+    assertThat(outputDir.list().length)
         .as("Check %s file EmbedImages", outputFile.getName())
         .isEqualTo(1);
   }
@@ -127,7 +126,7 @@ public class LocalConverterITest {
 
     assertThat(outputFile).as("Check %s file creation", outputFile.getName()).isFile();
     // Check that the EmbedImages option has been applied
-    assertThat(Objects.requireNonNull(outputDir.list()).length)
+    assertThat(outputDir.list().length)
         .as("Check %s file EmbedImages", outputFile.getName())
         .isEqualTo(1);
   }
@@ -137,18 +136,18 @@ public class LocalConverterITest {
   public void testCustomProperties() {
 
     assertThat(
-            Objects.requireNonNull(
-                    Objects.requireNonNull(
-                            converter.getFormatRegistry().getFormatByExtension("txt"))
-                        .getLoadProperties())
+            converter
+                .getFormatRegistry()
+                .getFormatByExtension("txt")
+                .getLoadProperties()
                 .get("FilterOptions"))
         .isEqualTo("utf16");
 
     assertThat(
-            Objects.requireNonNull(
-                    Objects.requireNonNull(
-                            converter.getFormatRegistry().getFormatByExtension("txt"))
-                        .getStoreProperties())
+            converter
+                .getFormatRegistry()
+                .getFormatByExtension("txt")
+                .getStoreProperties()
                 .get(DocumentFamily.TEXT)
                 .get("FilterOptions"))
         .isEqualTo("utf16");

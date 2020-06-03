@@ -16,7 +16,7 @@ public class Deps {
   // Latest version -> https://mvnrepository.com/artifact/commons-cli/commons-cli
   public static final String commonsCliVersion = "1.4";
   // Latest version -> https://mvnrepository.com/artifact/commons-io/commons-io
-  public static final String commonsIoVersion = "2.6";
+  public static final String commonsIoVersion = "2.5";
   // Latest version -> https://mvnrepository.com/artifact/org.libreoffice
   public static final String loVersion = "6.3.2";
   // Latest version -> https://mvnrepository.com/artifact/org.openoffice

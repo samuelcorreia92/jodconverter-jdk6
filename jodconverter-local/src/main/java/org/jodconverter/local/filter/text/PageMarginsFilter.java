@@ -35,8 +35,6 @@ import org.jodconverter.local.office.utils.Write;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
 /** This filter is used to set the margins of the document being converted. */
 public class PageMarginsFilter implements Filter {
 
@@ -78,9 +76,7 @@ public class PageMarginsFilter implements Filter {
 
   @Override
   public void doFilter(
-      final OfficeContext context,
-      final XComponent document,
-      final FilterChain chain)
+      final OfficeContext context, final XComponent document, final FilterChain chain)
       throws Exception {
 
     LOGGER.debug("Applying the PageMarginsFilter");
@@ -98,7 +94,6 @@ public class PageMarginsFilter implements Filter {
 
     // Querying for the interface XTextDocument (text interface) on the XComponent
     final XTextDocument docText = Write.getTextDoc(document);
-    Objects.requireNonNull(docText);
 
     // Create a text cursor from the cells XText interface
     final XTextCursor xTextCursor = docText.getText().createTextCursor();

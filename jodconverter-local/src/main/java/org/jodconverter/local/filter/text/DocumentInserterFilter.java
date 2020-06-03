@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Objects;
 
 import static org.jodconverter.local.office.LocalOfficeUtils.toUrl;
 
@@ -57,9 +56,7 @@ public class DocumentInserterFilter implements Filter {
 
   @Override
   public void doFilter(
-      final OfficeContext context,
-      final XComponent document,
-      final FilterChain chain)
+      final OfficeContext context, final XComponent document, final FilterChain chain)
       throws Exception {
 
     LOGGER.debug("Applying the DocumentInserterFilter");
@@ -77,7 +74,6 @@ public class DocumentInserterFilter implements Filter {
 
     // Querying for the interface XTextDocument (text interface) on the XComponent.
     final XTextDocument docText = Write.getTextDoc(document);
-    Objects.requireNonNull(docText);
 
     // We need the text cursor in order to go to the end of the document.
     final XTextCursor textCursor = docText.getText().createTextCursor();

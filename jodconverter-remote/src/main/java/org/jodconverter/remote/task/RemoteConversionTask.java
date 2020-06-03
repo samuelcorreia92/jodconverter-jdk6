@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Map;
-import java.util.Objects;
 
 /** Represents the default behavior for an remote conversion task. */
 public class RemoteConversionTask extends AbstractRemoteOfficeTask {
@@ -56,8 +55,7 @@ public class RemoteConversionTask extends AbstractRemoteOfficeTask {
    * @param source The source specifications for the conversion.
    * @param target The target specifications for the conversion.
    */
-  public RemoteConversionTask(
-      final SourceDocumentSpecs source, final TargetDocumentSpecs target) {
+  public RemoteConversionTask(final SourceDocumentSpecs source, final TargetDocumentSpecs target) {
     super(source);
 
     this.target = target;
@@ -119,25 +117,21 @@ public class RemoteConversionTask extends AbstractRemoteOfficeTask {
         // We suppose that the server supports custom load properties, but LibreOffice Online
         // does not support custom load properties, only the sample web service do.
         addPropertiesToBuilder(
-            uriBuilder,
-            LOAD_PROPERTIES_PREFIX_PARAM,
-            Objects.requireNonNull(target.getFormat()).getLoadProperties());
+            uriBuilder, LOAD_PROPERTIES_PREFIX_PARAM, target.getFormat().getLoadProperties());
 
         // We suppose that the server supports custom store properties, but LibreOffice Online
         // does not support custom store properties, only the sample web service do.
         addPropertiesToBuilder(
             uriBuilder,
             STORE_PROPERTIES_PREFIX_PARAM,
-            target
-                .getFormat()
-                .getStoreProperties(Objects.requireNonNull(source.getFormat()).getInputFamily()));
+            target.getFormat().getStoreProperties(source.getFormat().getInputFamily()));
 
         Executor.newInstance(remoteContext.getHttpClient())
             .execute(
                 // Request.Post(buildUrl(requestConfig.getUrl()))
                 Request.Post(uriBuilder.build())
-                    .connectTimeout(Math.toIntExact(requestConfig.getConnectTimeout()))
-                    .socketTimeout(Math.toIntExact(requestConfig.getSocketTimeout()))
+                    .connectTimeout(Long.valueOf(requestConfig.getConnectTimeout()).intValue())
+                    .socketTimeout(Long.valueOf(requestConfig.getSocketTimeout()).intValue())
                     .body(entity))
             .saveContent(targetFile);
 
@@ -166,10 +160,8 @@ public class RemoteConversionTask extends AbstractRemoteOfficeTask {
     // an example URL is like:
     // http://localhost:9980/lool/convert-to/docx
 
-    return StringUtils.appendIfMissing(connectionUrl, "/")
-        + Objects.requireNonNull(target.getFormat()).getExtension();
+    return StringUtils.appendIfMissing(connectionUrl, "/") + target.getFormat().getExtension();
   }
-
 
   @Override
   public String toString() {

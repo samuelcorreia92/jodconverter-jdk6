@@ -27,7 +27,6 @@ import org.jodconverter.core.util.FileUtils;
 
 import java.io.File;
 import java.io.OutputStream;
-import java.util.Objects;
 
 /**
  * Base class for all conversion job implementations with source format that is not yet applied to
@@ -55,7 +54,6 @@ public abstract class AbstractConversionJobWithSourceFormatUnspecified
     this.formatRegistry = formatRegistry;
   }
 
-
   @Override
   public AbstractConversionJobWithSourceFormatUnspecified as(final DocumentFormat format) {
 
@@ -63,14 +61,12 @@ public abstract class AbstractConversionJobWithSourceFormatUnspecified
     return this;
   }
 
-
   @Override
   public AbstractConversionJob to(final File target) {
 
     final TargetDocumentSpecsFromFile specs = new TargetDocumentSpecsFromFile(target);
     final DocumentFormat format =
-        formatRegistry.getFormatByExtension(
-            Objects.requireNonNull(FileUtils.getExtension(target.getName())));
+        formatRegistry.getFormatByExtension(FileUtils.getExtension(target.getName()));
     if (format != null) {
       specs.setDocumentFormat(format);
     }
@@ -78,13 +74,11 @@ public abstract class AbstractConversionJobWithSourceFormatUnspecified
     return toInternal(specs);
   }
 
-
   @Override
   public AbstractConversionJob to(final OutputStream target) {
 
     return to(target, DEFAULT_CLOSE_STREAM);
   }
-
 
   @Override
   public AbstractConversionJob to(final OutputStream target, final boolean closeStream) {
@@ -105,7 +99,6 @@ public abstract class AbstractConversionJobWithSourceFormatUnspecified
    * @param target The target specifications to use for the conversion.
    * @return The current conversion specification.
    */
-
   protected abstract AbstractConversionJob to(AbstractTargetDocumentSpecs target);
 
   private AbstractConversionJob toInternal(final AbstractTargetDocumentSpecs target) {

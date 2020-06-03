@@ -29,8 +29,6 @@ import org.jodconverter.local.office.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
 /** This filter is used to count the number of pages of a document. */
 public class PageCounterFilter implements Filter {
 
@@ -40,9 +38,7 @@ public class PageCounterFilter implements Filter {
 
   @Override
   public void doFilter(
-      final OfficeContext context,
-      final XComponent document,
-      final FilterChain chain)
+      final OfficeContext context, final XComponent document, final FilterChain chain)
       throws Exception {
 
     if (Write.isText(document)) {
@@ -56,7 +52,7 @@ public class PageCounterFilter implements Filter {
       LOGGER.debug("Applying the PageCounterFilter for a Calc document");
 
       final XSpreadsheetDocument doc = Calc.getCalcDoc(document);
-      pageCount = Objects.requireNonNull(doc).getSheets().getElementNames().length;
+      pageCount = doc.getSheets().getElementNames().length;
 
     } else if (Draw.isImpress(document)) {
       LOGGER.debug("Applying the PageCounterFilter for an Impress document");

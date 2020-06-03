@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.util.Map;
-import java.util.Objects;
 
 /** This filter is used to insert text into a document. */
 public class TextInserterFilter extends AbstractTextContentInserterFilter {
@@ -101,9 +100,7 @@ public class TextInserterFilter extends AbstractTextContentInserterFilter {
 
   @Override
   public void doFilter(
-      final OfficeContext context,
-      final XComponent document,
-      final FilterChain chain)
+      final OfficeContext context, final XComponent document, final FilterChain chain)
       throws Exception {
 
     LOGGER.debug("Applying the TextInserterFilter");
@@ -140,7 +137,6 @@ public class TextInserterFilter extends AbstractTextContentInserterFilter {
 
     // Querying for the interface XTextDocument (text interface) on the XComponent
     final XTextDocument docText = Write.getTextDoc(document);
-    Objects.requireNonNull(docText);
 
     // Access the XText interface of the text contained within the frame
     XText text = docText.getText();
