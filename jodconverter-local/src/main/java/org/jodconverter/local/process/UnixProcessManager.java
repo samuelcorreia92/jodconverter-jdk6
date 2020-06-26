@@ -33,75 +33,72 @@ import java.util.regex.Pattern;
  */
 public class UnixProcessManager extends AbstractProcessManager {
 
-  private static final Pattern PS_OUTPUT_LINE =
-      Pattern.compile("^\\s*(?<Pid>\\d+)\\s+(?<CommandLine>.*)$");
+    private static final Pattern PS_OUTPUT_LINE = Pattern.compile("^\\s*(\\d+)\\s+(.*)$");
 
-  private String[] runAsArgs;
+    private String[] runAsArgs;
 
-  /**
-   * This class is required in order to create the default UnixProcessManager only on demand, as
-   * explained by the Initialization-on-demand holder idiom:
-   * https://www.wikiwand.com/en/Initialization-on-demand_holder_idiom
-   */
-  private static class DefaultHolder { // NOPMD - Disable utility class name rule violation
-    /* default */ static final UnixProcessManager INSTANCE = new UnixProcessManager();
-  }
-
-  /**
-   * Gets the default instance of {@code UnixProcessManager}.
-   *
-   * @return The default {@code UnixProcessManager} instance.
-   */
-  public static UnixProcessManager getDefault() {
-    return DefaultHolder.INSTANCE;
-  }
-
-  @Override
-  protected List<String> execute(final String[] cmdarray) throws IOException {
-
-    if (runAsArgs == null) {
-      return super.execute(cmdarray);
+    /**
+     * This class is required in order to create the default UnixProcessManager only on demand, as
+     * explained by the Initialization-on-demand holder idiom:
+     * https://www.wikiwand.com/en/Initialization-on-demand_holder_idiom
+     */
+    private static class DefaultHolder { // NOPMD - Disable utility class name rule violation
+        /* default */ static final UnixProcessManager INSTANCE = new UnixProcessManager();
     }
 
-    final String[] newarray = new String[runAsArgs.length + cmdarray.length];
-    System.arraycopy(runAsArgs, 0, newarray, 0, runAsArgs.length);
-    System.arraycopy(cmdarray, 0, newarray, runAsArgs.length, cmdarray.length);
-
-    return super.execute(newarray);
-  }
-
-  @Override
-  protected String[] getRunningProcessesCommand(final String process) {
-
-    return new String[] {
-      "/bin/sh", "-c", "/bin/ps -e -o pid,args | /bin/grep " + process + " | /bin/grep -v grep"
-    };
-  }
-
-  @Override
-  protected Pattern getRunningProcessLinePattern() {
-
-    return PS_OUTPUT_LINE;
-  }
-
-  @Override
-  public void kill(final Process process, final long pid) throws IOException {
-    if (pid > PID_UNKNOWN) {
-      execute(new String[] {"/bin/kill", "-KILL", String.valueOf(pid)});
-    } else {
-      if (process == null) {
-        throw new NullPointerException("process must not be null");
-      }
-      process.destroy();
+    /**
+     * Gets the default instance of {@code UnixProcessManager}.
+     *
+     * @return The default {@code UnixProcessManager} instance.
+     */
+    public static UnixProcessManager getDefault() {
+        return DefaultHolder.INSTANCE;
     }
-  }
 
-  /**
-   * Sets The sudo command arguments.
-   *
-   * @param runAsArgs The sudo command arguments.
-   */
-  public void setRunAsArgs(final String[] runAsArgs) {
-    this.runAsArgs = Arrays.copyOf(runAsArgs, runAsArgs.length);
-  }
+    @Override
+    protected List<String> execute(final String[] cmdarray) throws IOException {
+
+        if (runAsArgs == null) {
+            return super.execute(cmdarray);
+        }
+
+        final String[] newarray = new String[runAsArgs.length + cmdarray.length];
+        System.arraycopy(runAsArgs, 0, newarray, 0, runAsArgs.length);
+        System.arraycopy(cmdarray, 0, newarray, runAsArgs.length, cmdarray.length);
+
+        return super.execute(newarray);
+    }
+
+    @Override
+    protected String[] getRunningProcessesCommand(final String process) {
+        return new String[]{
+                "/bin/sh", "-c", "/bin/ps -e -o pid,args | /bin/grep " + process + " | /bin/grep -v grep"
+        };
+    }
+
+    @Override
+    protected Pattern getRunningProcessLinePattern() {
+        return PS_OUTPUT_LINE;
+    }
+
+    @Override
+    public void kill(final Process process, final long pid) throws IOException {
+        if (pid > PID_UNKNOWN) {
+            execute(new String[]{"/bin/kill", "-KILL", String.valueOf(pid)});
+        } else {
+            if (process == null) {
+                throw new NullPointerException("process must not be null");
+            }
+            process.destroy();
+        }
+    }
+
+    /**
+     * Sets The sudo command arguments.
+     *
+     * @param runAsArgs The sudo command arguments.
+     */
+    public void setRunAsArgs(final String[] runAsArgs) {
+        this.runAsArgs = Arrays.copyOf(runAsArgs, runAsArgs.length);
+    }
 }
